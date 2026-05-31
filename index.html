@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>sina — Roblox Scripter</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --surface2: #1a1a1a;
+    --border: #222222;
+    --accent: #00ff88;
+    --accent2: #ff3366;
+    --text: #f0f0f0;
+    --muted: #666666;
+    --mono: 'Space Mono', monospace;
+    --display: 'Syne', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--display);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* GRID BACKGROUND */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.2rem 3rem;
+    background: rgba(10,10,10,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: var(--mono);
+    font-size: 1rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--accent); }
+
+  /* HERO */
+  .hero {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 8rem 3rem 4rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .hero-tag {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .hero-tag::before {
+    content: '';
+    width: 2rem;
+    height: 1px;
+    background: var(--accent);
+    display: inline-block;
+  }
+
+  .hero h1 {
+    font-family: var(--display);
+    font-size: clamp(3.5rem, 8vw, 7rem);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    margin-bottom: 2rem;
+  }
+
+  .hero h1 span {
+    color: var(--accent);
+    display: block;
+  }
+
+  .hero-desc {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.8;
+    max-width: 480px;
+    margin-bottom: 3rem;
+  }
+
+  .hero-cta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.9rem 2rem;
+    border: 1px solid;
+    text-decoration: none;
+    transition: all 0.2s;
+    display: inline-block;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+    border-color: var(--accent);
+    font-weight: 700;
+  }
+
+  .btn-primary:hover {
+    background: transparent;
+    color: var(--accent);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--muted);
+    border-color: var(--border);
+  }
+
+  .btn-secondary:hover {
+    color: var(--text);
+    border-color: var(--muted);
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 3rem;
+    margin-top: 5rem;
+    padding-top: 3rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .stat-num {
+    font-family: var(--display);
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 0.25rem;
+  }
+
+  /* SECTIONS */
+  section {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 6rem 3rem;
+  }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .section-label::before {
+    content: '';
+    width: 1.5rem;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  .section-title {
+    font-family: var(--display);
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    margin-bottom: 3rem;
+  }
+
+  /* PROJECTS */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  .project-card {
+    background: var(--surface);
+    padding: 2.5rem;
+    transition: background 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .project-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px;
+    height: 0;
+    background: var(--accent);
+    transition: height 0.3s;
+  }
+
+  .project-card:hover::before { height: 100%; }
+  .project-card:hover { background: var(--surface2); }
+
+  .project-num {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.2em;
+    margin-bottom: 1rem;
+  }
+
+  .project-title {
+    font-family: var(--display);
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+
+  .project-desc {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+    max-width: 680px;
+  }
+
+  .project-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .tag {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.75rem;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  .tag-accent {
+    border-color: rgba(0,255,136,0.3);
+    color: var(--accent);
+    background: rgba(0,255,136,0.05);
+  }
+
+  /* SKILLS */
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  .skill-card {
+    background: var(--surface);
+    padding: 2rem;
+  }
+
+  .skill-icon {
+    font-family: var(--mono);
+    font-size: 1.5rem;
+    color: var(--accent);
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  .skill-name {
+    font-family: var(--display);
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .skill-desc {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  /* PRICING */
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  .price-card {
+    background: var(--surface);
+    padding: 2.5rem;
+    position: relative;
+  }
+
+  .price-card.featured {
+    background: var(--surface2);
+    border-top: 2px solid var(--accent);
+  }
+
+  .price-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+
+  .price-label.accent { color: var(--accent); }
+
+  .price-amount {
+    font-family: var(--display);
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.25rem;
+  }
+
+  .price-unit {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-bottom: 2rem;
+  }
+
+  .price-features {
+    list-style: none;
+    margin-bottom: 2rem;
+  }
+
+  .price-features li {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .price-features li::before {
+    content: '→';
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  /* CONTACT */
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  .contact-info {
+    background: var(--surface);
+    padding: 3rem;
+  }
+
+  .contact-info h3 {
+    font-family: var(--display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  .contact-info p {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 2rem;
+  }
+
+  .contact-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border);
+    text-decoration: none;
+    color: var(--text);
+    transition: color 0.2s;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+  }
+
+  .contact-link:hover { color: var(--accent); }
+
+  .contact-link-icon {
+    color: var(--accent);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    min-width: 60px;
+  }
+
+  .contact-notice {
+    background: var(--surface2);
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .notice-title {
+    font-family: var(--display);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+  }
+
+  .notice-text {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 2rem;
+  }
+
+  .notice-item {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .notice-item-icon {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--accent);
+    min-width: 1.5rem;
+    padding-top: 2px;
+  }
+
+  .notice-item-text {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* FOOTER */
+  footer {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--border);
+    padding: 2rem 3rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  footer p {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+
+  footer span {
+    color: var(--accent);
+  }
+
+  /* DIVIDER */
+  .full-border {
+    border-top: 1px solid var(--border);
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero > * {
+    animation: fadeUp 0.6s ease forwards;
+    opacity: 0;
+  }
+
+  .hero > *:nth-child(1) { animation-delay: 0.1s; }
+  .hero > *:nth-child(2) { animation-delay: 0.2s; }
+  .hero > *:nth-child(3) { animation-delay: 0.3s; }
+  .hero > *:nth-child(4) { animation-delay: 0.4s; }
+  .hero > *:nth-child(5) { animation-delay: 0.5s; }
+
+  /* CURSOR DOT */
+  .cursor {
+    display: inline-block;
+    width: 0.6rem;
+    height: 1.2rem;
+    background: var(--accent);
+    margin-left: 4px;
+    vertical-align: middle;
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { gap: 1.5rem; }
+    section, .hero { padding-left: 1.5rem; padding-right: 1.5rem; }
+    .hero-stats { gap: 2rem; flex-wrap: wrap; }
+    .contact-grid { grid-template-columns: 1fr; }
+    footer { flex-direction: column; gap: 0.5rem; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">sina.dev</div>
+  <ul class="nav-links">
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<div class="hero">
+  <div class="hero-tag">Roblox Scripter for Hire</div>
+  <h1>
+    Clean systems.<br>
+    <span>Scalable code.<span class="cursor"></span></span>
+  </h1>
+  <p class="hero-desc">
+    I build professional, modular Roblox systems — from AI frameworks to multiplayer infrastructure. No spaghetti. No shortcuts. Just production-quality Luau built to last.
+  </p>
+  <div class="hero-cta">
+    <a href="#contact" class="btn btn-primary">Hire Me</a>
+    <a href="#projects" class="btn btn-secondary">View Work</a>
+  </div>
+  <div class="hero-stats">
+    <div>
+      <div class="stat-num">3+</div>
+      <div class="stat-label">Portfolio Projects</div>
+    </div>
+    <div>
+      <div class="stat-num">100%</div>
+      <div class="stat-label">Modular Code</div>
+    </div>
+    <div>
+      <div class="stat-num">EST</div>
+      <div class="stat-label">Timezone</div>
+    </div>
+  </div>
+</div>
+
+<div class="full-border"></div>
+
+<section id="projects">
+  <div class="section-label">Work</div>
+  <h2 class="section-title">Portfolio Projects</h2>
+
+  <div class="projects-grid">
+
+    <div class="project-card">
+      <div class="project-num">01 — Framework</div>
+      <div class="project-title">Modular Game Framework</div>
+      <p class="project-desc">
+        A full game backbone built with service/controller architecture, a module loader, custom signal system, server-authoritative combat with M1 combo chains and knockback physics, round-based multiplayer with lobby/match/results loop, secure DataStore economy with anti-exploit validation, and a complete HUD/notification UI system.
+      </p>
+      <div class="project-tags">
+        <span class="tag tag-accent">Server-Authoritative</span>
+        <span class="tag tag-accent">Module Architecture</span>
+        <span class="tag">Signal System</span>
+        <span class="tag">DataStore</span>
+        <span class="tag">Combat</span>
+        <span class="tag">Round System</span>
+        <span class="tag">UI Framework</span>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <div class="project-num">02 — AI</div>
+      <div class="project-title">Modular AI Framework</div>
+      <p class="project-desc">
+        A reusable AI engine built on behavior trees and finite state machines. Features vision cone and hearing-based perception, a memory system with threat levels that escalate over repeated detections, Roblox PathfindingService integration with stuck detection, randomized patrol routing, and squad AI where one NPC spotting you alerts nearby allies. Includes a real-time debug overlay showing NPC state, vision cones, hearing radius, and target lines.
+      </p>
+      <div class="project-tags">
+        <span class="tag tag-accent">Behavior Trees</span>
+        <span class="tag tag-accent">State Machines</span>
+        <span class="tag">Perception System</span>
+        <span class="tag">Memory + Threat</span>
+        <span class="tag">Pathfinding</span>
+        <span class="tag">Squad AI</span>
+        <span class="tag">Debug Tools</span>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <div class="project-num">03 — Systems</div>
+      <div class="project-title">Replay + Killcam System</div>
+      <p class="project-desc">
+        A snapshot-based replay engine recording every player's position 20 times per second in a rolling buffer. On death, the victim sees a cinematic killcam showing the attacker's last 3 seconds of movement as an interpolated ghost model with a follow camera. Includes spectator mode with player switching, a full round system with lobby/battle/finishing states, sword distribution on battle start, and automatic camera and state restoration between rounds.
+      </p>
+      <div class="project-tags">
+        <span class="tag tag-accent">Snapshot Recording</span>
+        <span class="tag tag-accent">Killcam</span>
+        <span class="tag">Interpolation</span>
+        <span class="tag">Spectator Mode</span>
+        <span class="tag">Round System</span>
+        <span class="tag">Cinematic Camera</span>
+        <span class="tag">Ghost Playback</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="full-border"></div>
+
+<section id="skills">
+  <div class="section-label">Capabilities</div>
+  <h2 class="section-title">What I Build</h2>
+
+  <div class="skills-grid">
+    <div class="skill-card">
+      <span class="skill-icon">[AI]</span>
+      <div class="skill-name">AI Systems</div>
+      <p class="skill-desc">Behavior trees, state machines, perception systems, pathfinding, squad coordination, and debug tooling. Not just NPC chase scripts — full reusable AI engines.</p>
+    </div>
+    <div class="skill-card">
+      <span class="skill-icon">[FW]</span>
+      <div class="skill-name">Game Frameworks</div>
+      <p class="skill-desc">Service/controller architecture, module loaders, signal systems, server-authoritative game loops. Built to scale, not to be rewritten.</p>
+    </div>
+    <div class="skill-card">
+      <span class="skill-icon">[MP]</span>
+      <div class="skill-name">Multiplayer Systems</div>
+      <p class="skill-desc">Round-based games, matchmaking, team balancing, killcam, spectator mode, and replay systems. Server-side always. No client trust.</p>
+    </div>
+    <div class="skill-card">
+      <span class="skill-icon">[DB]</span>
+      <div class="skill-name">Data + Economy</div>
+      <p class="skill-desc">DataStore systems with versioning, anti-exploit currency validation, auto-save loops, and safe merge logic for new data fields.</p>
+    </div>
+    <div class="skill-card">
+      <span class="skill-icon">[UI]</span>
+      <div class="skill-name">UI Systems</div>
+      <p class="skill-desc">Screen managers, reusable components, notification queues, tween animations, HUDs, killcam overlays, spectator bars — clean and modular.</p>
+    </div>
+    <div class="skill-card">
+      <span class="skill-icon">[CB]</span>
+      <div class="skill-name">Combat Systems</div>
+      <p class="skill-desc">Server-authoritative hit detection, M1 combo chains, cooldown systems, knockback physics, hitbox debugging. No client-side damage. Ever.</p>
+    </div>
+  </div>
+</section>
+
+<div class="full-border"></div>
+
+<section id="pricing">
+  <div class="section-label">Pricing</div>
+  <h2 class="section-title">Commission Rates</h2>
+
+  <div class="pricing-grid">
+    <div class="price-card">
+      <div class="price-label">Small System</div>
+      <div class="price-amount">R$500+</div>
+      <div class="price-unit">/ single system</div>
+      <ul class="price-features">
+        <li>One focused system</li>
+        <li>Clean modular code</li>
+        <li>1–2 day delivery</li>
+        <li>7 day bug warranty</li>
+      </ul>
+      <a href="#contact" class="btn btn-secondary" style="width:100%; text-align:center;">Get a Quote</a>
+    </div>
+
+    <div class="price-card featured">
+      <div class="price-label accent">Full Framework</div>
+      <div class="price-amount">R$2000+</div>
+      <div class="price-unit">/ complete project</div>
+      <ul class="price-features">
+        <li>Multiple connected systems</li>
+        <li>Full architecture design</li>
+        <li>3–7 day delivery</li>
+        <li>7 day bug warranty</li>
+        <li>Progress updates every few hours</li>
+      </ul>
+      <a href="#contact" class="btn btn-primary" style="width:100%; text-align:center;">Get a Quote</a>
+    </div>
+
+    <div class="price-card">
+      <div class="price-label">PayPal</div>
+      <div class="price-amount">$5+</div>
+      <div class="price-unit">/ USD equivalent</div>
+      <ul class="price-features">
+        <li>Same scope as Robux tiers</li>
+        <li>50% upfront, 50% after</li>
+        <li>No percentage deals</li>
+        <li>Invoice on request</li>
+      </ul>
+      <a href="#contact" class="btn btn-secondary" style="width:100%; text-align:center;">Get a Quote</a>
+    </div>
+  </div>
+</section>
+
+<div class="full-border"></div>
+
+<section id="contact">
+  <div class="section-label">Contact</div>
+  <h2 class="section-title">Work Together</h2>
+
+  <div class="contact-grid">
+    <div class="contact-info">
+      <h3>Get in touch</h3>
+      <p>Available for commissions and studio contracts. DM me on Discord or find me on RoDevs. I respond fast.</p>
+
+      <a href="#" class="contact-link">
+        <span class="contact-link-icon">Discord</span>
+        sina
+      </a>
+      <a href="#" class="contact-link">
+        <span class="contact-link-icon">RoDevs</span>
+        @sina
+      </a>
+      <a href="#" class="contact-link">
+        <span class="contact-link-icon">Roblox</span>
+        sina
+      </a>
+    </div>
+
+    <div class="contact-notice">
+      <div>
+        <div class="notice-title">Before you reach out</div>
+        <p class="notice-text">A few things to know so we can work together smoothly.</p>
+      </div>
+      <div>
+        <div class="notice-item">
+          <span class="notice-item-icon">01</span>
+          <span class="notice-item-text">I do not accept percentage-based payment without a guaranteed upfront minimum.</span>
+        </div>
+        <div class="notice-item">
+          <span class="notice-item-icon">02</span>
+          <span class="notice-item-text">Payment is 50% upfront, 50% on delivery. No exceptions.</span>
+        </div>
+        <div class="notice-item">
+          <span class="notice-item-icon">03</span>
+          <span class="notice-item-text">Bug fixes are free within 7 days of delivery for issues I caused.</span>
+        </div>
+        <div class="notice-item">
+          <span class="notice-item-icon">04</span>
+          <span class="notice-item-text">I provide progress updates throughout. You are never left waiting blindly.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>© 2025 <span>sina</span> — Roblox Scripter</p>
+  <p>Built for <span>studios</span> that care about quality.</p>
+</footer>
+
+</body>
+</html>
