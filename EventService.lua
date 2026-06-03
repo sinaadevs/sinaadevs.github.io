@@ -1,4 +1,4 @@
--- Connected Discord-GitHub | Discord: sinaadev | Roblox: zeskhh
+-- Connected Discord-GitHub | Discord: sinadev | Roblox: zeskhh
 
 --[[
     dynamic event framework - eventservice + eventmanager
