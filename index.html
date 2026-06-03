@@ -297,6 +297,24 @@
     max-width: 680px;
   }
 
+
+  .project-video {
+    margin-bottom: 1.5rem;
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+    overflow: hidden;
+    background: #000;
+    border: 1px solid var(--border);
+  }
+
+  .project-video iframe {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
   .project-tags {
     display: flex;
     flex-wrap: wrap;
@@ -613,7 +631,7 @@
     <span>Scalable code.<span class="cursor"></span></span>
   </h1>
   <p class="hero-desc">
-    I'm a beginner-intermediate Roblox scripter focused on building clean, modular systems. From AI frameworks to multiplayer infrastructure — I prioritize scalable architecture and production-quality Luau over quick fixes.
+    I build professional, modular Roblox systems — from AI frameworks to multiplayer infrastructure. No spaghetti. No shortcuts. Just production-quality Luau built to last.
   </p>
   <div class="hero-cta">
     <a href="#contact" class="btn btn-primary">Hire Me</a>
@@ -621,7 +639,7 @@
   </div>
   <div class="hero-stats">
     <div>
-      <div class="stat-num">6+</div>
+      <div class="stat-num">10+</div>
       <div class="stat-label">Portfolio Projects</div>
     </div>
     <div>
@@ -646,6 +664,7 @@
     <div class="project-card">
       <div class="project-num">01 — Framework</div>
       <div class="project-title">Modular Game Framework</div>
+      <div class="project-video"><iframe src="https://www.youtube.com/embed/D5v7EZV0Kcs" allowfullscreen></iframe></div>
       <p class="project-desc">
         A full game backbone built with service/controller architecture, a module loader, custom signal system, server-authoritative combat with M1 combo chains and knockback physics, round-based multiplayer with lobby/match/results loop, secure DataStore economy with anti-exploit validation, and a complete HUD/notification UI system.
       </p>
@@ -663,6 +682,7 @@
     <div class="project-card">
       <div class="project-num">02 — AI</div>
       <div class="project-title">Modular AI Framework</div>
+      <div class="project-video"><iframe src="https://www.youtube.com/embed/PVSdt2xLSc8" allowfullscreen></iframe></div>
       <p class="project-desc">
         A reusable AI engine built on behavior trees and finite state machines. Features vision cone and hearing-based perception, a memory system with threat levels that escalate over repeated detections, Roblox PathfindingService integration with stuck detection, randomized patrol routing, and squad AI where one NPC spotting you alerts nearby allies. Includes a real-time debug overlay showing NPC state, vision cones, hearing radius, and target lines.
       </p>
@@ -680,6 +700,7 @@
     <div class="project-card">
       <div class="project-num">03 — Systems</div>
       <div class="project-title">Replay + Killcam System</div>
+      <div class="project-video"><iframe src="https://www.youtube.com/embed/qcsfYE4NcfE" allowfullscreen></iframe></div>
       <p class="project-desc">
         A snapshot-based replay engine recording every player's position 20 times per second in a rolling buffer. On death, the victim sees a cinematic killcam showing the attacker's last 3 seconds of movement as an interpolated ghost model with a follow camera. Includes spectator mode with player switching, a full round system with lobby/battle/finishing states, sword distribution on battle start, and automatic camera and state restoration between rounds.
       </p>
@@ -697,6 +718,7 @@
     <div class="project-card">
       <div class="project-num">04 — Economy</div>
       <div class="project-title">Inventory + Shop System</div>
+      <div class="project-video"><iframe src="https://www.youtube.com/embed/J61HxDyaGQE" allowfullscreen></iframe></div>
       <p class="project-desc">
         A fully server-validated inventory and shop system. Items are defined in a single config file with categories, stack limits, buy and sell prices. The server owns all transaction logic — clients can never award themselves items or currency. Features equip/unequip with category-slot logic, a scrollable inventory grid UI, a shop panel, sound effects on all interactions, and clean separation between InventoryService, ShopService, and their client controllers.
       </p>
@@ -714,6 +736,7 @@
     <div class="project-card">
       <div class="project-num">05 — UI</div>
       <div class="project-title">Cinematic Main Menu System</div>
+      <div class="project-video"><iframe src="https://www.youtube.com/embed/dvKWVcpvy98" allowfullscreen></iframe></div>
       <p class="project-desc">
         A production-quality main menu with a cinematic camera system that smoothly transitions between map points, always facing a defined center. Features animated buttons with hover glow, scale tweens and click feedback, a settings panel with draggable volume sliders and toggle switches, an update logs panel, a credits panel, and background music that fades in on load and fades out when the player clicks Play. Player character is hidden and frozen until gameplay begins.
       </p>
@@ -731,6 +754,7 @@
     <div class="project-card">
       <div class="project-num">06 — LiveOps</div>
       <div class="project-title">Dynamic Event Framework</div>
+      <div class="project-video"><iframe src="https://www.youtube.com/embed/MFWchzSIDBg" allowfullscreen></iframe></div>
       <p class="project-desc">
         A scalable LiveOps-style event engine that dynamically triggers world events, modifies gameplay, announces events to players, handles rewards, and manages cooldowns. Features weighted random event selection, a priority system, conflict prevention so incompatible events never run together, an event queue, and a full lifecycle pipeline with OnStart, OnUpdate and OnEnd hooks. Includes 5 sample events — Meteor Shower, Blood Moon, Treasure Hunt, Double Coins, and Boss Invasion — each demonstrating a different framework capability.
       </p>
@@ -742,6 +766,75 @@
         <span class="tag">Announcement UI</span>
         <span class="tag">Reward System</span>
         <span class="tag">LiveOps</span>
+      </div>
+
+    <div class="project-card">
+      <div class="project-num">07 — Gameplay</div>
+      <div class="project-title">Custom Movement System</div>
+      <div class="project-video"><iframe src="https://www.youtube.com/embed/eOqSkiRHHFs" allowfullscreen></iframe></div>
+      <p class="project-desc">
+        A fully customizable R6 movement system built from a real commission spec. Supports walk, run, jump, fall, crouch and slide with smooth transitions between each state. Includes a stamina meter that depletes gradually while running and takes a significant chunk on slide. The stamina UI is fully customizable and displays on screen at all times.
+      </p>
+      <div class="project-tags">
+        <span class="tag tag-accent">Custom Movement</span>
+        <span class="tag tag-accent">Stamina System</span>
+        <span class="tag">Crouch + Slide</span>
+        <span class="tag">HUD UI</span>
+        <span class="tag">R6</span>
+        <span class="tag">State Management</span>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <div class="project-num">08 — Mechanics</div>
+      <div class="project-title">Multi-Floor Elevator System</div>
+      <div class="project-video"><iframe src="https://www.youtube.com/embed/zf_0Pj-4w-A" allowfullscreen></iframe></div>
+      <p class="project-desc">
+        A smooth multi-floor elevator system built from a real commission spec. Each floor has a switch that calls the elevator. Gates on each floor open when the elevator arrives and close when it departs. The lever switches position on activation and the elevator moves slowly with smooth tweening. All state is synchronized across all players in the server.
+      </p>
+      <div class="project-tags">
+        <span class="tag tag-accent">Tween Animations</span>
+        <span class="tag tag-accent">State Sync</span>
+        <span class="tag">Multi-Floor</span>
+        <span class="tag">Gate System</span>
+        <span class="tag">Switch Mechanics</span>
+        <span class="tag">Multiplayer Safe</span>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <div class="project-num">09 — Systems</div>
+      <div class="project-title">Inventory + Looting System — Military UI</div>
+      <div class="project-video"><iframe src="https://www.youtube.com/embed/S7GJxb-6kIA" allowfullscreen></iframe></div>
+      <p class="project-desc">
+        A production-ready server-authoritative inventory and looting system inspired by Aftermath. Features a grid-based inventory with drag and drop, item tooltips, rarity system, physical item dropping, and a death loot bag that spawns at the player's death location. The dual-inventory looting interface lets multiple players access the same bag simultaneously with shift-click quick transfer. Anti-dupe protection and race condition prevention built in throughout. Military style UI.
+      </p>
+      <div class="project-tags">
+        <span class="tag tag-accent">Server-Authoritative</span>
+        <span class="tag tag-accent">Anti-Dupe</span>
+        <span class="tag">Drag + Drop</span>
+        <span class="tag">Death Loot Bag</span>
+        <span class="tag">Dual Inventory</span>
+        <span class="tag">Race Condition Safe</span>
+        <span class="tag">Grid UI</span>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <div class="project-num">10 — Systems</div>
+      <div class="project-title">Inventory + Looting System — Casual UI</div>
+      <div class="project-video"><iframe src="https://www.youtube.com/embed/PWJdRbPs-SU" allowfullscreen></iframe></div>
+      <p class="project-desc">
+        The same production-ready looting framework as Project 09 — server-authoritative, anti-dupe, drag and drop, death loot bags, dual inventory looting and race condition protection — rebuilt with a completely different visual identity. Rounded corners, softer colors and a bubbly aesthetic designed for casual or RPG games. Demonstrates the framework's ability to support entirely different UI styles without changing any underlying logic.
+      </p>
+      <div class="project-tags">
+        <span class="tag tag-accent">Server-Authoritative</span>
+        <span class="tag tag-accent">Anti-Dupe</span>
+        <span class="tag">Drag + Drop</span>
+        <span class="tag">Death Loot Bag</span>
+        <span class="tag">Dual Inventory</span>
+        <span class="tag">Casual UI</span>
+        <span class="tag">UI Reskin</span>
       </div>
     </div>
 
@@ -865,7 +958,7 @@
 
       <a href="#" class="contact-link">
         <span class="contact-link-icon">Discord</span>
-        sinaadev
+        sinadev
       </a>
       <a href="#" class="contact-link">
         <span class="contact-link-icon">Roblox</span>
