@@ -1,96 +1,97 @@
 -- Connected Discord-GitHub | Discord: sinaadev | Roblox: zeskhh
 
 --[[
-    Dynamic Event Framework — EventService + EventManager
-    
-    This script implements a LiveOps-style event engine for Roblox.
-    It combines a scheduler (EventService) and a lifecycle manager (EventManager)
-    into one cohesive system that dynamically triggers world events, manages
-    their duration, fires client announcements, and distributes rewards.
-    
-    Architecture overview:
-    - EventService owns the scheduler loop. It picks the next eligible event
-      using weighted random selection and priority tiers, then delegates
-      execution to EventManager.
-    - EventManager owns the event lifecycle. Each event has three hooks:
-      OnStart, OnUpdate (called every second), and OnEnd. These run inside
-      a dedicated task.spawn thread so events never block each other.
-    - EventRegistry (external module) tracks cooldowns and active state.
-    - EventRewardSystem (external module) distributes coins to all players.
-    - RemoteEvents push state changes to all connected clients in real time.
-    
-    Data flow:
-    Scheduler loop → picks event → EventManager.startEvent →
-    fires RemoteEvents → runs OnStart/OnUpdate/OnEnd lifecycle →
-    distributes rewards → clears active state → scheduler picks next
+    dynamic event framework - eventservice + eventmanager
+
+    this script is a liveops-style event engine i built for roblox
+    it combines a scheduler and a lifecycle manager into one system
+    that automatically triggers world events, manages their duration,
+    sends announcements to clients, and gives out rewards when they end
+
+    how it works:
+    - eventservice runs the scheduler loop, it picks the next event using
+      weighted random selection and priority tiers then hands it off to
+      the lifecycle logic below
+    - each event has three hooks: onstart, onupdate (runs every second),
+      and onend, they all run in their own task.spawn thread so two
+      events can run at the same time without blocking each other
+    - eventregistry (external module) keeps track of cooldowns and
+      which events are currently active
+    - eventrewardsystem (external module) gives coins to all players
+    - remoteevents push state changes to clients in real time
+
+    flow:
+    scheduler loop > picks event > startEvent >
+    fires remotes > onstart/onupdate/onend lifecycle >
+    gives rewards > clears active state > picks next
 ]]
 
--- Services
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Lighting = game:GetService("Lighting")
 
--- Shared framework modules (external, kept separate per single responsibility)
-local EventConfig   = require(ReplicatedStorage.Shared.EventFramework.EventConfig)
-local EventScheduler = require(ReplicatedStorage.Shared.EventFramework.EventScheduler)
-local EventRegistry = require(ReplicatedStorage.Shared.EventFramework.EventRegistry)
+-- external framework modules, kept separate so each one has one job
+local EventConfig       = require(ReplicatedStorage.Shared.EventFramework.EventConfig)
+local EventScheduler    = require(ReplicatedStorage.Shared.EventFramework.EventScheduler)
+local EventRegistry     = require(ReplicatedStorage.Shared.EventFramework.EventRegistry)
 local EventRewardSystem = require(ReplicatedStorage.Shared.EventFramework.EventRewardSystem)
 
 -- ============================================================
--- REMOTE REFERENCES
--- These are set lazily on first use so the script can be required
--- before the RemoteEvent instances finish replicating.
+-- remote references
+-- resolved lazily on first use so requiring this module doesnt
+-- yield the whole script while remotes are still replicating
 -- ============================================================
-local startedRemote    -- fires to all clients when an event begins
-local endedRemote      -- fires to all clients when an event ends
-local announcementRemote -- fires client-side banner notifications
-local countdownRemote  -- fires every second with remaining time
+local startedRemote     -- tells clients an event started
+local endedRemote       -- tells clients an event ended
+local announcementRemote -- sends banner notifications to clients
+local countdownRemote   -- sends remaining time every second
 
--- Tracks running event threads so we can cancel them if needed
--- { [eventId] = { thread: thread, startTime: number } }
+-- stores running event threads so we can cancel them if needed
+-- { [eventId] = { thread, startTime } }
 local runningEvents = {}
 
 -- ============================================================
--- INTERNAL HELPER — lazy remote resolution
--- Calling WaitForChild here instead of at module load time
--- prevents yielding the entire require chain on startup.
+-- internal helper - lazy remote resolution
+-- only grabs remotes on the first call, every call after
+-- that just skips straight through since theyre already set
 -- ============================================================
 local function ensureRemotes()
     if startedRemote then return end
     local remotes = ReplicatedStorage:WaitForChild("Remotes")
-    startedRemote     = remotes:WaitForChild("EventStarted")
-    endedRemote       = remotes:WaitForChild("EventEnded")
+    startedRemote      = remotes:WaitForChild("EventStarted")
+    endedRemote        = remotes:WaitForChild("EventEnded")
     announcementRemote = remotes:WaitForChild("EventAnnouncement")
-    countdownRemote   = remotes:WaitForChild("EventCountdown")
+    countdownRemote    = remotes:WaitForChild("EventCountdown")
 end
 
 -- ============================================================
--- EVENT BEHAVIORS
--- Each entry defines the three lifecycle hooks for one event type.
--- This table-driven approach means adding a new event only requires
--- adding a new key here — no changes to the framework logic below.
+-- event behaviors
+-- table-driven design, each event type has its own onstart,
+-- onupdate, and onend hooks defined here
+-- adding a new event type only means adding a new key to this
+-- table, no changes needed anywhere else in the framework
 -- ============================================================
 local EventBehaviors = {}
 
 --[[
-    MeteorShower
-    A timed hazard event. Logs impact ticks every 5 seconds to simulate
-    server-side meteor spawning. In a full implementation OnUpdate would
-    spawn physical meteor parts using CFrame math and apply impulse forces.
+    meteorshower
+    a timed hazard event, logs an impact tick every 5 seconds
+    in a full game onupdate would spawn actual meteor parts using
+    cframe math and apply physics impulses on impact
 ]]
 EventBehaviors["MeteorShower"] = {
     OnStart = function(eventId)
-        print("[MeteorShower] Starting — meteors incoming!")
+        print("[MeteorShower] starting - meteors incoming")
         announcementRemote:FireAllClients("warning", "☄ Meteor Shower Incoming!", "Take cover!")
     end,
 
-    -- Called every second by the lifecycle loop below.
-    -- elapsed = seconds since event started, duration = total event length.
+    -- elapsed = seconds since event started, duration = total event length
     OnUpdate = function(eventId, elapsed, duration)
         if elapsed % 5 == 0 then
-            -- In production: spawn a meteor part at a random map position,
-            -- apply BodyVelocity pointing downward, destroy on impact.
-            print("[MeteorShower] Impact tick at t=" .. elapsed)
+            -- in production this would spawn a meteor part at a random
+            -- position above the map, give it a downward velocity,
+            -- and destroy it on impact with a blast radius check
+            print("[MeteorShower] impact tick at t=" .. elapsed)
         end
     end,
 
@@ -101,54 +102,59 @@ EventBehaviors["MeteorShower"] = {
 }
 
 --[[
-    BloodMoon
-    A world-state event. Modifies Lighting service properties directly
-    on the server — changes replicate automatically to all clients.
-    OnEnd restores defaults so no cleanup RemoteEvent is needed.
+    bloodmoon
+    a world-state event that modifies the lighting service directly
+    on the server, roblox replicates lighting changes automatically
+    so no remote is needed to update clients
+    onend restores everything back to default so no cleanup remote needed
 ]]
 EventBehaviors["BloodMoon"] = {
     OnStart = function(eventId)
-        print("[BloodMoon] Rising!")
+        print("[BloodMoon] rising")
         announcementRemote:FireAllClients("danger", "🌕 Blood Moon Has Risen!", "Enemies are stronger!")
 
-        -- Shift global ambient lighting to deep red to signal danger state.
-        -- Color3.fromRGB values chosen to feel threatening without being unreadable.
-        Lighting.Ambient         = Color3.fromRGB(80, 0, 0)
-        Lighting.OutdoorAmbient  = Color3.fromRGB(60, 0, 0)
-        Lighting.ColorShift_Top  = Color3.fromRGB(150, 0, 0)
+        -- shift global ambient to deep red to signal the danger state
+        -- these values were picked to feel threatening without making
+        -- the map too dark to see
+        Lighting.Ambient        = Color3.fromRGB(80, 0, 0)
+        Lighting.OutdoorAmbient = Color3.fromRGB(60, 0, 0)
+        Lighting.ColorShift_Top = Color3.fromRGB(150, 0, 0)
     end,
 
     OnUpdate = function(eventId, elapsed, duration)
-        -- No per-tick logic needed. Lighting change is persistent until OnEnd.
+        -- no per-tick logic needed here, the lighting change
+        -- persists on its own until onend restores it
     end,
 
     OnEnd = function(eventId)
-        print("[BloodMoon] Setting.")
+        print("[BloodMoon] setting")
         announcementRemote:FireAllClients("info", "🌕 Blood Moon Ended", "The world is safe again.")
 
-        -- Restore Lighting to neutral defaults.
-        Lighting.Ambient         = Color3.fromRGB(70, 70, 70)
-        Lighting.OutdoorAmbient  = Color3.fromRGB(70, 70, 70)
-        Lighting.ColorShift_Top  = Color3.fromRGB(0, 0, 0)
+        -- restore lighting back to neutral defaults
+        Lighting.Ambient        = Color3.fromRGB(70, 70, 70)
+        Lighting.OutdoorAmbient = Color3.fromRGB(70, 70, 70)
+        Lighting.ColorShift_Top = Color3.fromRGB(0, 0, 0)
 
         EventRewardSystem.giveCompletionRewardToAll(eventId)
     end,
 }
 
 --[[
-    TreasureHunt
-    A collection event with a mid-event warning at 30 seconds remaining.
-    Demonstrates conditional OnUpdate logic for timed sub-announcements.
+    treasurehunt
+    a collection event with a mid-event warning at 30 seconds left
+    shows how onupdate can be used for conditional timed logic
+    not just simple per-tick stuff
 ]]
 EventBehaviors["TreasureHunt"] = {
     OnStart = function(eventId)
-        print("[TreasureHunt] Chests spawning!")
+        print("[TreasureHunt] chests spawning")
         announcementRemote:FireAllClients("success", "🏆 Treasure Hunt Begins!", "Find the chests around the map!")
     end,
 
     OnUpdate = function(eventId, elapsed, duration)
         local remaining = duration - elapsed
-        -- Fire a warning announcement exactly once when 30 seconds remain.
+        -- fire a warning exactly once when 30 seconds remain
+        -- the == check means this only triggers on one specific tick
         if remaining == 30 then
             announcementRemote:FireAllClients("warning", "🏆 Treasure Hunt", "30 seconds remaining!")
         end
@@ -161,14 +167,15 @@ EventBehaviors["TreasureHunt"] = {
 }
 
 --[[
-    DoubleCoins
-    A passive multiplier event. No per-tick logic needed.
-    In production the EconomyService would check EventRegistry.isActive("DoubleCoins")
-    before applying reward amounts, doubling them when this event is running.
+    doublecoins
+    a passive multiplier event with no per-tick logic needed
+    in production the economy service would call eventregistry.isActive
+    on this event before applying reward amounts and double them
+    if it returns true
 ]]
 EventBehaviors["DoubleCoins"] = {
     OnStart = function(eventId)
-        print("[DoubleCoins] Active!")
+        print("[DoubleCoins] active")
         announcementRemote:FireAllClients("success", "💰 Double Coins Active!", "All rewards doubled!")
     end,
     OnUpdate = function(eventId, elapsed, duration) end,
@@ -178,20 +185,21 @@ EventBehaviors["DoubleCoins"] = {
 }
 
 --[[
-    BossInvasion
-    A cooperative challenge event. Fires an enrage announcement at t=30
-    to simulate escalating difficulty. In production OnStart would spawn
-    a boss NPC model and OnEnd would destroy it.
+    bossinvasion
+    a cooperative challenge event, fires an enrage announcement
+    at t=30 to simulate difficulty scaling mid-fight
+    in production onstart would spawn the boss npc and onend
+    would clean it up whether it was defeated or the timer ran out
 ]]
 EventBehaviors["BossInvasion"] = {
     OnStart = function(eventId)
-        print("[BossInvasion] Boss spawning!")
+        print("[BossInvasion] boss spawning")
         announcementRemote:FireAllClients("danger", "💀 Boss Invasion!", "A powerful enemy has appeared. Work together!")
     end,
 
     OnUpdate = function(eventId, elapsed, duration)
         if elapsed == 30 then
-            -- Simulate the boss entering an enraged phase mid-event.
+            -- simulate the boss entering an enraged phase
             announcementRemote:FireAllClients("warning", "💀 Boss Invasion", "The boss is enraged!")
         end
     end,
@@ -203,72 +211,72 @@ EventBehaviors["BossInvasion"] = {
 }
 
 -- ============================================================
--- EVENT LIFECYCLE — startEvent
--- Registers the event as active, fires participation rewards,
--- then runs the full OnStart → OnUpdate loop → OnEnd pipeline
--- inside an independent coroutine via task.spawn.
--- Using task.spawn here is critical — it means two events can
--- run concurrently without either blocking the other.
+-- startEvent
+-- registers the event as active, fires participation rewards,
+-- then runs the full onstart > onupdate loop > onend pipeline
+-- inside its own coroutine via task.spawn
+-- the reason i use task.spawn here is so two events can run
+-- at the same time without either one blocking the other
 -- ============================================================
 local function startEvent(eventId)
     ensureRemotes()
 
     local eventData = EventConfig.Events[eventId]
     if not eventData then
-        warn("[EventManager] Unknown event:", eventId)
+        warn("[EventManager] unknown event:", eventId)
         return
     end
 
-    -- Prevent double-starting the same event.
+    -- prevent the same event from starting twice
     if EventRegistry.isActive(eventId) then
-        warn("[EventManager] Already active:", eventId)
+        warn("[EventManager] already active:", eventId)
         return
     end
 
     local behavior = EventBehaviors[eventId]
     if not behavior then
-        warn("[EventManager] No behavior for:", eventId)
+        warn("[EventManager] no behavior defined for:", eventId)
         return
     end
 
-    print("[EventManager] Starting:", eventId)
+    print("[EventManager] starting:", eventId)
 
-    -- Mark as active and stamp the cooldown before the thread starts.
-    -- This prevents the scheduler from queuing the same event again
-    -- during the brief window before the thread yields.
+    -- mark as active and stamp the cooldown before the thread starts
+    -- this prevents the scheduler from queueing the same event again
+    -- during the brief window before the thread first yields
     EventRegistry.setActive(eventId, true)
     EventRegistry.setCooldown(eventId)
 
-    -- Notify all clients that this event has started and send event metadata.
+    -- tell all clients this event started and send them the event data
     startedRemote:FireAllClients(eventId, eventData)
 
-    -- Award participation coins to every player currently in the server.
+    -- give participation coins to every player in the server right now
     EventRewardSystem.giveRewardToAll(eventData.Rewards.Participation)
 
-    -- Spawn the lifecycle thread. task.spawn does not yield the caller.
+    -- spawn the lifecycle thread, task.spawn doesnt yield the caller
+    -- so the scheduler loop keeps running normally while this runs
     local thread = task.spawn(function()
 
-        -- OnStart: one-time setup (lighting, spawning, announcements).
+        -- onstart runs once for setup like lighting changes or spawning
         local ok, err = pcall(behavior.OnStart, eventId)
-        if not ok then warn("[EventManager] OnStart error:", err) end
+        if not ok then warn("[EventManager] onstart error:", err) end
 
-        -- OnUpdate loop: ticks every second for the event's full duration.
+        -- tick every second for the full duration of the event
         local elapsed = 0
         while elapsed < eventData.Duration do
             task.wait(1)
             elapsed += 1
 
-            -- Push the remaining time to all clients every tick.
+            -- push remaining time to all clients on every tick
             countdownRemote:FireAllClients(eventId, eventData.Duration - elapsed)
 
             local ok2, err2 = pcall(behavior.OnUpdate, eventId, elapsed, eventData.Duration)
-            if not ok2 then warn("[EventManager] OnUpdate error:", err2) end
+            if not ok2 then warn("[EventManager] onupdate error:", err2) end
 
-            -- Allow external force-stop to break the loop cleanly.
+            -- if the event was force-stopped externally this breaks the loop
             if not EventRegistry.isActive(eventId) then break end
         end
 
-        -- Lifecycle complete — run teardown.
         stopEvent(eventId)
     end)
 
@@ -276,61 +284,63 @@ local function startEvent(eventId)
 end
 
 -- ============================================================
--- EVENT LIFECYCLE — stopEvent
--- Runs OnEnd cleanup, clears active state, and notifies clients.
--- Can be called by the lifecycle loop above OR externally for
--- force-stopping an event early.
+-- stopEvent
+-- runs onend cleanup, clears active state, notifies clients
+-- can be triggered by the lifecycle loop finishing naturally
+-- or called externally to force-stop an event early
 -- ============================================================
 function stopEvent(eventId)
     if not EventRegistry.isActive(eventId) then return end
 
-    print("[EventManager] Stopping:", eventId)
+    print("[EventManager] stopping:", eventId)
 
     local behavior = EventBehaviors[eventId]
     if behavior then
         local ok, err = pcall(behavior.OnEnd, eventId)
-        if not ok then warn("[EventManager] OnEnd error:", err) end
+        if not ok then warn("[EventManager] onend error:", err) end
     end
 
-    -- Clear active flag so the scheduler can re-queue this event
-    -- once its cooldown expires.
+    -- clear active flag so the scheduler can re-queue this event
+    -- once its cooldown timer expires
     EventRegistry.setActive(eventId, false)
     ensureRemotes()
     endedRemote:FireAllClients(eventId)
     runningEvents[eventId] = nil
 
-    print("[EventManager] Ended:", eventId)
+    print("[EventManager] ended:", eventId)
 end
 
 -- ============================================================
--- SCHEDULER LOOP
--- Runs every SchedulerInterval seconds. Checks the manual queue
--- first (for admin-forced events), then falls back to automatic
--- weighted random selection from eligible events.
+-- scheduler loop
+-- runs every schedulerinterval seconds
+-- checks the manual queue first for admin-forced events,
+-- then falls back to automatic weighted random selection
 -- ============================================================
 local function startSchedulerLoop()
     task.spawn(function()
-        -- Brief startup delay to allow RemoteEvents to finish replicating.
+        -- short startup delay so remotes finish replicating before
+        -- the first event could possibly fire
         task.wait(10)
 
         while true do
             task.wait(EventConfig.SchedulerInterval)
 
-            -- Priority 1: manually queued events (e.g. admin commands).
+            -- priority 1: manually queued events like admin force-starts
             local queued = EventScheduler.dequeueNext()
             if queued then
-                print("[EventService] Running queued event:", queued)
+                print("[EventService] running queued event:", queued)
                 startEvent(queued)
             else
-                -- Priority 2: automatic weighted random selection.
-                -- getNextEvent filters by cooldown, active state, and stack rules,
-                -- then picks from the highest priority tier using weighted random.
+                -- priority 2: automatic selection
+                -- getnextevent filters by cooldown, active state, and
+                -- stack conflict rules then picks from the highest
+                -- priority tier using weighted random selection
                 local nextEvent = EventScheduler.getNextEvent()
                 if nextEvent then
-                    print("[EventService] Scheduler picked:", nextEvent.Id)
+                    print("[EventService] scheduler picked:", nextEvent.Id)
                     startEvent(nextEvent.Id)
                 else
-                    print("[EventService] No eligible events this tick")
+                    print("[EventService] no eligible events this tick")
                 end
             end
         end
@@ -338,31 +348,31 @@ local function startSchedulerLoop()
 end
 
 -- ============================================================
--- PUBLIC API
--- Exposed functions for external use (admin panels, test commands).
+-- public api
+-- these are the only functions meant to be called from outside
 -- ============================================================
 local EventService = {}
 
--- Force-start any event by ID, bypassing scheduler and cooldowns.
+-- force-start any event by id, bypasses scheduler and cooldowns
 function EventService.forceStart(eventId)
     startEvent(eventId)
 end
 
--- Force-stop any currently running event.
+-- force-stop any currently running event
 function EventService.forceStop(eventId)
     stopEvent(eventId)
 end
 
--- Returns debug info for all registered events (active state, cooldowns).
+-- returns debug info for all registered events
 function EventService.getDebugInfo()
     return EventRegistry.getDebugInfo()
 end
 
--- Boot the system. Call once from Main.server.
+-- boot the whole system, call this once from main.server
 function EventService.Init()
     ensureRemotes()
     startSchedulerLoop()
-    print("[EventService] Initialized — interval:", EventConfig.SchedulerInterval, "seconds")
+    print("[EventService] initialized - interval:", EventConfig.SchedulerInterval, "seconds")
 end
 
 return EventService
