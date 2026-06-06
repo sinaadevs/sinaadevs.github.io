@@ -6,615 +6,187 @@
 <title>sina — Roblox Scripter</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --bg: #0a0a0a;
-    --surface: #111111;
-    --surface2: #1a1a1a;
-    --border: #222222;
-    --accent: #00ff88;
-    --accent2: #ff3366;
-    --text: #f0f0f0;
-    --muted: #666666;
-    --mono: 'Space Mono', monospace;
-    --display: 'Syne', sans-serif;
-  }
-
-  html { scroll-behavior: smooth; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--display);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* GRID BACKGROUND */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  /* NAV */
-  nav {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1.2rem 3rem;
-    background: rgba(10,10,10,0.85);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border);
-  }
-
-  .nav-logo {
-    font-family: var(--mono);
-    font-size: 1rem;
-    color: var(--accent);
-    letter-spacing: 0.1em;
-  }
-
-  .nav-links {
-    display: flex;
-    gap: 2.5rem;
-    list-style: none;
-  }
-
-  .nav-links a {
-    font-family: var(--mono);
-    font-size: 0.75rem;
-    color: var(--muted);
-    text-decoration: none;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    transition: color 0.2s;
-  }
-
-  .nav-links a:hover { color: var(--accent); }
-
-  /* HERO */
-  .hero {
-    position: relative;
-    z-index: 1;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 8rem 3rem 4rem;
-    max-width: 1100px;
-    margin: 0 auto;
-  }
-
-  .hero-tag {
-    font-family: var(--mono);
-    font-size: 0.75rem;
-    color: var(--accent);
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    margin-bottom: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .hero-tag::before {
-    content: '';
-    width: 2rem;
-    height: 1px;
-    background: var(--accent);
-    display: inline-block;
-  }
-
-  .hero h1 {
-    font-family: var(--display);
-    font-size: clamp(3.5rem, 8vw, 7rem);
-    font-weight: 800;
-    line-height: 0.95;
-    letter-spacing: -0.02em;
-    margin-bottom: 2rem;
-  }
-
-  .hero h1 span {
-    color: var(--accent);
-    display: block;
-  }
-
-  .hero-desc {
-    font-family: var(--mono);
-    font-size: 0.85rem;
-    color: var(--muted);
-    line-height: 1.8;
-    max-width: 480px;
-    margin-bottom: 3rem;
-  }
-
-  .hero-cta {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-  }
-
-  .btn {
-    font-family: var(--mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 0.9rem 2rem;
-    border: 1px solid;
-    text-decoration: none;
-    transition: all 0.2s;
-    display: inline-block;
-  }
-
-  .btn-primary {
-    background: var(--accent);
-    color: #000;
-    border-color: var(--accent);
-    font-weight: 700;
-  }
-
-  .btn-primary:hover {
-    background: transparent;
-    color: var(--accent);
-  }
-
-  .btn-secondary {
-    background: transparent;
-    color: var(--muted);
-    border-color: var(--border);
-  }
-
-  .btn-secondary:hover {
-    color: var(--text);
-    border-color: var(--muted);
-  }
-
-  .hero-stats {
-    display: flex;
-    gap: 3rem;
-    margin-top: 5rem;
-    padding-top: 3rem;
-    border-top: 1px solid var(--border);
-  }
-
-  .stat-num {
-    font-family: var(--display);
-    font-size: 2.5rem;
-    font-weight: 800;
-    color: var(--accent);
-    line-height: 1;
-  }
-
-  .stat-label {
-    font-family: var(--mono);
-    font-size: 0.7rem;
-    color: var(--muted);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    margin-top: 0.25rem;
-  }
-
-  /* SECTIONS */
-  section {
-    position: relative;
-    z-index: 1;
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 6rem 3rem;
-  }
-
-  .section-label {
-    font-family: var(--mono);
-    font-size: 0.7rem;
-    color: var(--accent);
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .section-label::before {
-    content: '';
-    width: 1.5rem;
-    height: 1px;
-    background: var(--accent);
-  }
-
-  .section-title {
-    font-family: var(--display);
-    font-size: clamp(2rem, 4vw, 3.5rem);
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    line-height: 1.05;
-    margin-bottom: 3rem;
-  }
-
-  /* PROJECTS */
-  .projects-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-  }
-
-  .project-card {
-    background: var(--surface);
-    padding: 2.5rem;
-    transition: background 0.2s;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .project-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0;
-    width: 3px;
-    height: 0;
-    background: var(--accent);
-    transition: height 0.3s;
-  }
-
-  .project-card:hover::before { height: 100%; }
-  .project-card:hover { background: var(--surface2); }
-
-  .project-num {
-    font-family: var(--mono);
-    font-size: 0.65rem;
-    color: var(--muted);
-    letter-spacing: 0.2em;
-    margin-bottom: 1rem;
-  }
-
-  .project-title {
-    font-family: var(--display);
-    font-size: 1.4rem;
-    font-weight: 700;
-    margin-bottom: 0.75rem;
-    letter-spacing: -0.01em;
-  }
-
-  .project-desc {
-    font-family: var(--mono);
-    font-size: 0.78rem;
-    color: var(--muted);
-    line-height: 1.8;
-    margin-bottom: 1.5rem;
-    max-width: 680px;
-  }
-
-
-  .project-video {
-    margin-bottom: 1.5rem;
-    position: relative;
-    padding-bottom: 56.25%;
-    height: 0;
-    overflow: hidden;
-    background: #000;
-    border: 1px solid var(--border);
-  }
-
-  .project-video iframe {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
-    border: 0;
-  }
-  .project-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-
-  .tag {
-    font-family: var(--mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 0.3rem 0.75rem;
-    border: 1px solid var(--border);
-    color: var(--muted);
-  }
-
-  .tag-accent {
-    border-color: rgba(0,255,136,0.3);
-    color: var(--accent);
-    background: rgba(0,255,136,0.05);
-  }
-
-  /* SKILLS */
-  .skills-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-  }
-
-  .skill-card {
-    background: var(--surface);
-    padding: 2rem;
-  }
-
-  .skill-icon {
-    font-family: var(--mono);
-    font-size: 1.5rem;
-    color: var(--accent);
-    margin-bottom: 1rem;
-    display: block;
-  }
-
-  .skill-name {
-    font-family: var(--display);
-    font-size: 1rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-  }
-
-  .skill-desc {
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    color: var(--muted);
-    line-height: 1.7;
-  }
-
-  /* PRICING */
-  .pricing-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-  }
-
-  .price-card {
-    background: var(--surface);
-    padding: 2.5rem;
-    position: relative;
-  }
-
-  .price-card.featured {
-    background: var(--surface2);
-    border-top: 2px solid var(--accent);
-  }
-
-  .price-label {
-    font-family: var(--mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 1rem;
-  }
-
-  .price-label.accent { color: var(--accent); }
-
-  .price-amount {
-    font-family: var(--display);
-    font-size: 2.5rem;
-    font-weight: 800;
-    margin-bottom: 0.25rem;
-  }
-
-  .price-unit {
-    font-family: var(--mono);
-    font-size: 0.75rem;
-    color: var(--muted);
-    margin-bottom: 2rem;
-  }
-
-  .price-features {
-    list-style: none;
-    margin-bottom: 2rem;
-  }
-
-  .price-features li {
-    font-family: var(--mono);
-    font-size: 0.75rem;
-    color: var(--muted);
-    padding: 0.6rem 0;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .price-features li::before {
-    content: '→';
-    color: var(--accent);
-    flex-shrink: 0;
-  }
-
-  /* CONTACT */
-  .contact-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-  }
-
-  .contact-info {
-    background: var(--surface);
-    padding: 3rem;
-  }
-
-  .contact-info h3 {
-    font-family: var(--display);
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-  }
-
-  .contact-info p {
-    font-family: var(--mono);
-    font-size: 0.78rem;
-    color: var(--muted);
-    line-height: 1.8;
-    margin-bottom: 2rem;
-  }
-
-  .contact-link {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem 0;
-    border-bottom: 1px solid var(--border);
-    text-decoration: none;
-    color: var(--text);
-    transition: color 0.2s;
-    font-family: var(--mono);
-    font-size: 0.78rem;
-  }
-
-  .contact-link:hover { color: var(--accent); }
-
-  .contact-link-icon {
-    color: var(--accent);
-    font-size: 0.65rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    min-width: 60px;
-  }
-
-  .contact-notice {
-    background: var(--surface2);
-    padding: 3rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-
-  .notice-title {
-    font-family: var(--display);
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--accent);
-    margin-bottom: 0.75rem;
-  }
-
-  .notice-text {
-    font-family: var(--mono);
-    font-size: 0.75rem;
-    color: var(--muted);
-    line-height: 1.8;
-    margin-bottom: 2rem;
-  }
-
-  .notice-item {
-    display: flex;
-    gap: 1rem;
-    align-items: flex-start;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .notice-item-icon {
-    font-family: var(--mono);
-    font-size: 0.65rem;
-    color: var(--accent);
-    min-width: 1.5rem;
-    padding-top: 2px;
-  }
-
-  .notice-item-text {
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    color: var(--muted);
-    line-height: 1.6;
-  }
-
-  /* FOOTER */
-  footer {
-    position: relative;
-    z-index: 1;
-    border-top: 1px solid var(--border);
-    padding: 2rem 3rem;
-    max-width: 1100px;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  footer p {
-    font-family: var(--mono);
-    font-size: 0.7rem;
-    color: var(--muted);
-  }
-
-  footer span {
-    color: var(--accent);
-  }
-
-  /* DIVIDER */
-  .full-border {
-    border-top: 1px solid var(--border);
-    max-width: 1100px;
-    margin: 0 auto;
-  }
-
-  /* ANIMATIONS */
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .hero > * {
-    animation: fadeUp 0.6s ease forwards;
-    opacity: 0;
-  }
-
-  .hero > *:nth-child(1) { animation-delay: 0.1s; }
-  .hero > *:nth-child(2) { animation-delay: 0.2s; }
-  .hero > *:nth-child(3) { animation-delay: 0.3s; }
-  .hero > *:nth-child(4) { animation-delay: 0.4s; }
-  .hero > *:nth-child(5) { animation-delay: 0.5s; }
-
-  /* CURSOR DOT */
-  .cursor {
-    display: inline-block;
-    width: 0.6rem;
-    height: 1.2rem;
-    background: var(--accent);
-    margin-left: 4px;
-    vertical-align: middle;
-    animation: blink 1s step-end infinite;
-  }
-
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
-  }
-
-  @media (max-width: 768px) {
-    nav { padding: 1rem 1.5rem; }
-    .nav-links { gap: 1.5rem; }
-    section, .hero { padding-left: 1.5rem; padding-right: 1.5rem; }
-    .hero-stats { gap: 2rem; flex-wrap: wrap; }
-    .contact-grid { grid-template-columns: 1fr; }
-    footer { flex-direction: column; gap: 0.5rem; text-align: center; }
-  }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0a;--surface:#111111;--surface2:#1a1a1a;--border:#222222;
+  --accent:#00ff88;--accent2:#ff3366;--text:#f0f0f0;--muted:#555555;
+  --mono:'Space Mono',monospace;--display:'Syne',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--display);min-height:100vh;overflow-x:hidden}
+
+/* CANVAS PARTICLES */
+#particles{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.4}
+
+/* LOADING SCREEN */
+#loader{position:fixed;inset:0;background:#0a0a0a;z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.6s,visibility 0.6s}
+#loader.hidden{opacity:0;visibility:hidden}
+.loader-text{font-family:var(--mono);font-size:0.75rem;color:var(--accent);letter-spacing:0.3em;margin-bottom:2rem}
+.loader-bar-wrap{width:200px;height:1px;background:var(--border)}
+.loader-bar{height:1px;background:var(--accent);width:0%;transition:width 0.05s linear;box-shadow:0 0 8px var(--accent)}
+.loader-pct{font-family:var(--mono);font-size:0.65rem;color:var(--muted);margin-top:1rem;letter-spacing:0.2em}
+
+/* GRID BG */
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,136,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,136,0.025) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1.2rem 3rem;background:rgba(10,10,10,0.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);transition:all 0.3s}
+nav.scrolled{padding:0.8rem 3rem;background:rgba(10,10,10,0.98)}
+.nav-logo{font-family:var(--mono);font-size:1rem;color:var(--accent);letter-spacing:0.1em;position:relative}
+.nav-logo::after{content:'';position:absolute;bottom:-2px;left:0;width:0;height:1px;background:var(--accent);transition:width 0.3s}
+.nav-logo:hover::after{width:100%}
+.nav-links{display:flex;gap:2.5rem;list-style:none}
+.nav-links a{font-family:var(--mono);font-size:0.75rem;color:var(--muted);text-decoration:none;letter-spacing:0.15em;text-transform:uppercase;transition:color 0.2s;position:relative}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1px;background:var(--accent);transition:width 0.3s}
+.nav-links a:hover{color:var(--accent)}
+.nav-links a:hover::after,.nav-links a.active::after{width:100%}
+.nav-links a.active{color:var(--accent)}
+
+/* HERO */
+.hero{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:8rem 3rem 4rem;max-width:1100px;margin:0 auto}
+.hero-tag{font-family:var(--mono);font-size:0.75rem;color:var(--accent);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.75rem;opacity:0;animation:fadeUp 0.6s 0.1s forwards}
+.hero-tag::before{content:'';width:2rem;height:1px;background:var(--accent);display:inline-block}
+.hero h1{font-family:var(--display);font-size:clamp(3.5rem,8vw,7rem);font-weight:800;line-height:0.95;letter-spacing:-0.02em;margin-bottom:2rem;opacity:0;animation:fadeUp 0.6s 0.2s forwards}
+.hero h1 span{color:var(--accent);display:block}
+.glitch{position:relative}
+.glitch::before,.glitch::after{content:attr(data-text);position:absolute;top:0;left:0;width:100%}
+.glitch::before{color:#ff3366;animation:glitch1 4s infinite;clip-path:polygon(0 0,100% 0,100% 35%,0 35%)}
+.glitch::after{color:#00ffff;animation:glitch2 4s infinite;clip-path:polygon(0 65%,100% 65%,100% 100%,0 100%)}
+@keyframes glitch1{0%,90%,100%{transform:none;opacity:0}92%{transform:translate(-2px,0);opacity:0.8}94%{transform:translate(2px,0);opacity:0.8}96%{transform:translate(-1px,0);opacity:0.8}98%{transform:none;opacity:0}}
+@keyframes glitch2{0%,90%,100%{transform:none;opacity:0}93%{transform:translate(2px,0);opacity:0.8}95%{transform:translate(-2px,0);opacity:0.8}97%{transform:translate(1px,0);opacity:0.8}99%{transform:none;opacity:0}}
+.hero-desc{font-family:var(--mono);font-size:0.85rem;color:var(--muted);line-height:1.8;max-width:480px;margin-bottom:3rem;opacity:0;animation:fadeUp 0.6s 0.3s forwards}
+.hero-cta{display:flex;gap:1rem;flex-wrap:wrap;opacity:0;animation:fadeUp 0.6s 0.4s forwards}
+.btn{font-family:var(--mono);font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.9rem 2rem;border:1px solid;text-decoration:none;transition:all 0.3s;display:inline-block;position:relative;overflow:hidden}
+.btn::before{content:'';position:absolute;inset:0;background:var(--accent);transform:translateX(-100%);transition:transform 0.3s;z-index:-1}
+.btn-primary{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700}
+.btn-primary:hover{background:transparent;color:var(--accent)}
+.btn-secondary{background:transparent;color:var(--muted);border-color:var(--border)}
+.btn-secondary:hover{color:var(--text);border-color:var(--accent)}
+.hero-stats{display:flex;gap:3rem;margin-top:5rem;padding-top:3rem;border-top:1px solid var(--border);opacity:0;animation:fadeUp 0.6s 0.5s forwards}
+.stat-num{font-family:var(--display);font-size:2.5rem;font-weight:800;color:var(--accent);line-height:1}
+.stat-num.counting{text-shadow:0 0 20px rgba(0,255,136,0.5)}
+.stat-label{font-family:var(--mono);font-size:0.7rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-top:0.25rem}
+
+/* SCROLL REVEAL */
+.reveal{opacity:0;transform:translateY(30px);transition:opacity 0.7s ease,transform 0.7s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* SECTIONS */
+section{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:6rem 3rem}
+.section-label{font-family:var(--mono);font-size:0.7rem;color:var(--accent);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:0.75rem}
+.section-label::before{content:'';width:1.5rem;height:1px;background:var(--accent)}
+.section-title{font-family:var(--display);font-size:clamp(2rem,4vw,3.5rem);font-weight:800;letter-spacing:-0.02em;line-height:1.05;margin-bottom:3rem}
+
+/* PROJECTS */
+.projects-grid{display:grid;grid-template-columns:1fr;gap:1px;background:var(--border);border:1px solid var(--border)}
+.project-card{background:var(--surface);padding:2.5rem;transition:background 0.3s,transform 0.3s;position:relative;overflow:hidden}
+.project-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:0;background:var(--accent);transition:height 0.4s;box-shadow:0 0 10px var(--accent)}
+.project-card::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(0,255,136,0.04) 0%,transparent 60%);opacity:0;transition:opacity 0.3s;pointer-events:none}
+.project-card:hover::before{height:100%}
+.project-card:hover::after{opacity:1}
+.project-card:hover{background:var(--surface2)}
+.project-num{font-family:var(--mono);font-size:0.65rem;color:var(--muted);letter-spacing:0.2em;margin-bottom:1rem}
+.project-title{font-family:var(--display);font-size:1.4rem;font-weight:700;margin-bottom:0.75rem;letter-spacing:-0.01em;transition:color 0.3s}
+.project-card:hover .project-title{color:var(--accent)}
+.project-desc{font-family:var(--mono);font-size:0.78rem;color:var(--muted);line-height:1.8;margin-bottom:1.5rem;max-width:680px}
+.project-video{margin-bottom:1.5rem;position:relative;padding-bottom:56.25%;height:0;overflow:hidden;background:#000;border:1px solid var(--border)}
+.project-video iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
+.project-tags{display:flex;flex-wrap:wrap;gap:0.5rem}
+.tag{font-family:var(--mono);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.3rem 0.75rem;border:1px solid var(--border);color:var(--muted);transition:all 0.2s}
+.tag:hover{border-color:var(--accent);color:var(--accent)}
+.tag-accent{border-color:rgba(0,255,136,0.3);color:var(--accent);background:rgba(0,255,136,0.05)}
+
+/* SKILLS */
+.skills-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1px;background:var(--border);border:1px solid var(--border)}
+.skill-card{background:var(--surface);padding:2rem;transition:background 0.3s,transform 0.2s;position:relative;overflow:hidden}
+.skill-card::before{content:'';position:absolute;bottom:0;left:0;width:0;height:1px;background:var(--accent);transition:width 0.4s}
+.skill-card:hover::before{width:100%}
+.skill-card:hover{background:var(--surface2);transform:translateY(-2px)}
+.skill-icon{font-family:var(--mono);font-size:1.5rem;color:var(--accent);margin-bottom:1rem;display:block;transition:text-shadow 0.3s}
+.skill-card:hover .skill-icon{text-shadow:0 0 15px rgba(0,255,136,0.6)}
+.skill-name{font-family:var(--display);font-size:1rem;font-weight:700;margin-bottom:0.5rem}
+.skill-desc{font-family:var(--mono);font-size:0.72rem;color:var(--muted);line-height:1.7}
+
+/* PRICING */
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1px;background:var(--border);border:1px solid var(--border)}
+.price-card{background:var(--surface);padding:2.5rem;position:relative;transition:background 0.3s}
+.price-card.featured{background:var(--surface2);border-top:2px solid var(--accent)}
+.price-card:hover{background:var(--surface2)}
+.price-label{font-family:var(--mono);font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem}
+.price-label.accent{color:var(--accent)}
+.price-amount{font-family:var(--display);font-size:2.5rem;font-weight:800;margin-bottom:0.25rem}
+.price-unit{font-family:var(--mono);font-size:0.75rem;color:var(--muted);margin-bottom:2rem}
+.price-features{list-style:none;margin-bottom:2rem}
+.price-features li{font-family:var(--mono);font-size:0.75rem;color:var(--muted);padding:0.6rem 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0.75rem}
+.price-features li::before{content:'→';color:var(--accent);flex-shrink:0}
+
+/* CONTACT */
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border)}
+.contact-info{background:var(--surface);padding:3rem}
+.contact-info h3{font-family:var(--display);font-size:1.5rem;font-weight:700;margin-bottom:1rem}
+.contact-info p{font-family:var(--mono);font-size:0.78rem;color:var(--muted);line-height:1.8;margin-bottom:2rem}
+.contact-link{display:flex;align-items:center;gap:1rem;padding:1rem 0;border-bottom:1px solid var(--border);text-decoration:none;color:var(--text);transition:all 0.2s;font-family:var(--mono);font-size:0.78rem}
+.contact-link:hover{color:var(--accent);padding-left:8px}
+.contact-link-icon{color:var(--accent);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;min-width:60px}
+.contact-notice{background:var(--surface2);padding:3rem;display:flex;flex-direction:column;justify-content:space-between}
+.notice-title{font-family:var(--display);font-size:1rem;font-weight:700;color:var(--accent);margin-bottom:0.75rem}
+.notice-text{font-family:var(--mono);font-size:0.75rem;color:var(--muted);line-height:1.8;margin-bottom:2rem}
+.notice-item{display:flex;gap:1rem;align-items:flex-start;padding:0.75rem 0;border-bottom:1px solid var(--border)}
+.notice-item-icon{font-family:var(--mono);font-size:0.65rem;color:var(--accent);min-width:1.5rem;padding-top:2px}
+.notice-item-text{font-family:var(--mono);font-size:0.72rem;color:var(--muted);line-height:1.6}
+
+/* FOOTER */
+footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:2rem 3rem;max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+footer p{font-family:var(--mono);font-size:0.7rem;color:var(--muted)}
+footer span{color:var(--accent)}
+
+/* DIVIDER */
+.full-border{border-top:1px solid var(--border);max-width:1100px;margin:0 auto}
+
+/* CURSOR BLINK */
+.cursor-blink{display:inline-block;width:0.6rem;height:1.2rem;background:var(--accent);margin-left:4px;vertical-align:middle;animation:blink 1s step-end infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* SCAN LINE */
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,136,0.008) 2px,rgba(0,255,136,0.008) 4px);pointer-events:none;z-index:1;animation:scanMove 8s linear infinite}
+@keyframes scanMove{0%{background-position:0 0}100%{background-position:0 100px}}
+
+/* PROGRESS INDICATOR */
+#progress-wrap{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;gap:3px;padding:0 3rem;pointer-events:none;height:3px}
+.prog-seg{flex:1;height:3px;background:var(--border);position:relative;overflow:hidden}
+.prog-seg-fill{position:absolute;inset:0;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform 0.15s;box-shadow:0 0 6px var(--accent)}
+
+/* BACK TO TOP */
+#btt{position:fixed;bottom:2rem;right:2rem;width:44px;height:44px;background:var(--surface2);border:1px solid var(--border);color:var(--accent);font-family:var(--mono);font-size:1rem;display:flex;align-items:center;justify-content:center;text-decoration:none;z-index:50;opacity:0;transform:translateY(10px);transition:all 0.3s;cursor:none}
+#btt.visible{opacity:1;transform:translateY(0)}
+#btt:hover{background:var(--accent);color:#000;border-color:var(--accent)}
+
+/* TYPEWRITER */
+.typewriter-wrap{overflow:hidden}
+.typewriter{display:inline}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* NOISE OVERLAY */
+.noise{position:fixed;inset:0;pointer-events:none;z-index:2;opacity:0.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")}
+
+@media(max-width:768px){nav{padding:1rem 1.5rem}.nav-links{gap:1.5rem}section,.hero{padding-left:1.5rem;padding-right:1.5rem}.hero-stats{gap:2rem;flex-wrap:wrap}.contact-grid{grid-template-columns:1fr}footer{flex-direction:column;gap:0.5rem;text-align:center}body{cursor:auto}}
 </style>
 </head>
 <body>
 
-<nav>
+<div id="loader">
+  <div class="loader-text">INITIALIZING</div>
+  <div class="loader-bar-wrap"><div class="loader-bar" id="lbar"></div></div>
+  <div class="loader-pct" id="lpct">0%</div>
+</div>
+
+<div id="progress-wrap"></div>
+<div class="noise"></div>
+<canvas id="particles"></canvas>
+<a href="#" id="btt">↑</a>
+
+<nav id="nav">
   <div class="nav-logo">sina.dev</div>
   <ul class="nav-links">
     <li><a href="#projects">Projects</a></li>
@@ -628,18 +200,16 @@
   <div class="hero-tag">Roblox Scripter for Hire</div>
   <h1>
     Clean systems.<br>
-    <span>Scalable code.<span class="cursor"></span></span>
+    <span class="glitch" data-text="Scalable code.">Scalable code.<span class="cursor-blink"></span></span>
   </h1>
-  <p class="hero-desc">
-    I'm a beginner-intermediate Roblox scripter focused on building clean, modular systems. From AI frameworks to multiplayer infrastructure, I prioritize scalable architecture and production-quality Luau over quick fixes.
-  </p>
+  <p class="hero-desc">I'm a beginner-intermediate Roblox scripter focused on building clean, modular systems. From AI frameworks to multiplayer infrastructure, I prioritize scalable architecture and production-quality Luau over quick fixes.</p>
   <div class="hero-cta">
     <a href="#contact" class="btn btn-primary">Hire Me</a>
     <a href="#projects" class="btn btn-secondary">View Work</a>
   </div>
   <div class="hero-stats">
     <div>
-      <div class="stat-num">11+</div>
+      <div class="stat-num" data-count="11">11+</div>
       <div class="stat-label">Portfolio Projects</div>
     </div>
     <div>
@@ -656,204 +226,117 @@
 <div class="full-border"></div>
 
 <section id="projects">
-  <div class="section-label">Work</div>
-  <h2 class="section-title">Portfolio Projects</h2>
-
+  <div class="section-label reveal">Work</div>
+  <h2 class="section-title reveal">Portfolio Projects</h2>
   <div class="projects-grid">
 
-    <div class="project-card">
+    <div class="project-card reveal">
       <div class="project-num">01 — Framework</div>
       <div class="project-title">Modular Game Framework</div>
       <div class="project-video"><iframe src="https://www.youtube.com/embed/D5v7EZV0Kcs" allowfullscreen></iframe></div>
-      <p class="project-desc">
-        A full game backbone built with service/controller architecture, a module loader, custom signal system, server-authoritative combat with M1 combo chains and knockback physics, round-based multiplayer with lobby/match/results loop, secure DataStore economy with anti-exploit validation, and a complete HUD/notification UI system.
-      </p>
+      <p class="project-desc">A full game backbone built with service/controller architecture, a module loader, custom signal system, server-authoritative combat with M1 combo chains and knockback physics, round-based multiplayer with lobby/match/results loop, secure DataStore economy with anti-exploit validation, and a complete HUD/notification UI system.</p>
       <div class="project-tags">
-        <span class="tag tag-accent">Server-Authoritative</span>
-        <span class="tag tag-accent">Module Architecture</span>
-        <span class="tag">Signal System</span>
-        <span class="tag">DataStore</span>
-        <span class="tag">Combat</span>
-        <span class="tag">Round System</span>
-        <span class="tag">UI Framework</span>
+        <span class="tag tag-accent">Server-Authoritative</span><span class="tag tag-accent">Module Architecture</span><span class="tag">Signal System</span><span class="tag">DataStore</span><span class="tag">Combat</span><span class="tag">Round System</span><span class="tag">UI Framework</span>
       </div>
     </div>
 
-    <div class="project-card">
+    <div class="project-card reveal">
       <div class="project-num">02 — AI</div>
       <div class="project-title">Modular AI Framework</div>
       <div class="project-video"><iframe src="https://www.youtube.com/embed/PVSdt2xLSc8" allowfullscreen></iframe></div>
-      <p class="project-desc">
-        A reusable AI engine built on behavior trees and finite state machines. Features vision cone and hearing-based perception, a memory system with threat levels that escalate over repeated detections, Roblox PathfindingService integration with stuck detection, randomized patrol routing, and squad AI where one NPC spotting you alerts nearby allies. Includes a real-time debug overlay showing NPC state, vision cones, hearing radius, and target lines.
-      </p>
+      <p class="project-desc">A reusable AI engine built on behavior trees and finite state machines. Features vision cone and hearing-based perception, a memory system with threat levels that escalate over repeated detections, Roblox PathfindingService integration with stuck detection, randomized patrol routing, and squad AI where one NPC spotting you alerts nearby allies. Includes a real-time debug overlay showing NPC state, vision cones, hearing radius, and target lines.</p>
       <div class="project-tags">
-        <span class="tag tag-accent">Behavior Trees</span>
-        <span class="tag tag-accent">State Machines</span>
-        <span class="tag">Perception System</span>
-        <span class="tag">Memory + Threat</span>
-        <span class="tag">Pathfinding</span>
-        <span class="tag">Squad AI</span>
-        <span class="tag">Debug Tools</span>
+        <span class="tag tag-accent">Behavior Trees</span><span class="tag tag-accent">State Machines</span><span class="tag">Perception System</span><span class="tag">Memory + Threat</span><span class="tag">Pathfinding</span><span class="tag">Squad AI</span><span class="tag">Debug Tools</span>
       </div>
     </div>
 
-    <div class="project-card">
+    <div class="project-card reveal">
       <div class="project-num">03 — Systems</div>
       <div class="project-title">Replay + Killcam System</div>
       <div class="project-video"><iframe src="https://www.youtube.com/embed/qcsfYE4NcfE" allowfullscreen></iframe></div>
-      <p class="project-desc">
-        A snapshot-based replay engine recording every player's position 20 times per second in a rolling buffer. On death, the victim sees a cinematic killcam showing the attacker's last 3 seconds of movement as an interpolated ghost model with a follow camera. Includes spectator mode with player switching, a full round system with lobby/battle/finishing states, sword distribution on battle start, and automatic camera and state restoration between rounds.
-      </p>
+      <p class="project-desc">A snapshot-based replay engine recording every player's position 20 times per second in a rolling buffer. On death, the victim sees a cinematic killcam showing the attacker's last 3 seconds of movement as an interpolated ghost model with a follow camera. Includes spectator mode with player switching, a full round system with lobby/battle/finishing states, sword distribution on battle start, and automatic camera and state restoration between rounds.</p>
       <div class="project-tags">
-        <span class="tag tag-accent">Snapshot Recording</span>
-        <span class="tag tag-accent">Killcam</span>
-        <span class="tag">Interpolation</span>
-        <span class="tag">Spectator Mode</span>
-        <span class="tag">Round System</span>
-        <span class="tag">Cinematic Camera</span>
-        <span class="tag">Ghost Playback</span>
+        <span class="tag tag-accent">Snapshot Recording</span><span class="tag tag-accent">Killcam</span><span class="tag">Interpolation</span><span class="tag">Spectator Mode</span><span class="tag">Round System</span><span class="tag">Cinematic Camera</span><span class="tag">Ghost Playback</span>
       </div>
     </div>
 
-    <div class="project-card">
+    <div class="project-card reveal">
       <div class="project-num">04 — Economy</div>
       <div class="project-title">Inventory + Shop System</div>
       <div class="project-video"><iframe src="https://www.youtube.com/embed/J61HxDyaGQE" allowfullscreen></iframe></div>
-      <p class="project-desc">
-        A fully server-validated inventory and shop system. Items are defined in a single config file with categories, stack limits, buy and sell prices. The server owns all transaction logic — clients can never award themselves items or currency. Features equip/unequip with category-slot logic, a scrollable inventory grid UI, a shop panel, sound effects on all interactions, and clean separation between InventoryService, ShopService, and their client controllers.
-      </p>
+      <p class="project-desc">A fully server-validated inventory and shop system. Items are defined in a single config file with categories, stack limits, buy and sell prices. The server owns all transaction logic — clients can never award themselves items or currency. Features equip/unequip with category-slot logic, a scrollable inventory grid UI, a shop panel, sound effects on all interactions, and clean separation between InventoryService, ShopService, and their client controllers.</p>
       <div class="project-tags">
-        <span class="tag tag-accent">Server Validation</span>
-        <span class="tag tag-accent">Anti-Exploit</span>
-        <span class="tag">Item Config</span>
-        <span class="tag">Equip System</span>
-        <span class="tag">Shop UI</span>
-        <span class="tag">Inventory UI</span>
-        <span class="tag">Sound FX</span>
+        <span class="tag tag-accent">Server Validation</span><span class="tag tag-accent">Anti-Exploit</span><span class="tag">Item Config</span><span class="tag">Equip System</span><span class="tag">Shop UI</span><span class="tag">Inventory UI</span><span class="tag">Sound FX</span>
       </div>
     </div>
 
-    <div class="project-card">
+    <div class="project-card reveal">
       <div class="project-num">05 — UI</div>
       <div class="project-title">Cinematic Main Menu System</div>
       <div class="project-video"><iframe src="https://www.youtube.com/embed/dvKWVcpvy98" allowfullscreen></iframe></div>
-      <p class="project-desc">
-        A production-quality main menu with a cinematic camera system that smoothly transitions between map points, always facing a defined center. Features animated buttons with hover glow, scale tweens and click feedback, a settings panel with draggable volume sliders and toggle switches, an update logs panel, a credits panel, and background music that fades in on load and fades out when the player clicks Play. Player character is hidden and frozen until gameplay begins.
-      </p>
+      <p class="project-desc">A production-quality main menu with a cinematic camera system that smoothly transitions between map points, always facing a defined center. Features animated buttons with hover glow, scale tweens and click feedback, a settings panel with draggable volume sliders and toggle switches, an update logs panel, a credits panel, and background music that fades in on load and fades out when the player clicks Play. Player character is hidden and frozen until gameplay begins.</p>
       <div class="project-tags">
-        <span class="tag tag-accent">Cinematic Camera</span>
-        <span class="tag tag-accent">Animated UI</span>
-        <span class="tag">Settings Panel</span>
-        <span class="tag">Music Fade</span>
-        <span class="tag">Button Tweens</span>
-        <span class="tag">Update Logs</span>
-        <span class="tag">Credits</span>
+        <span class="tag tag-accent">Cinematic Camera</span><span class="tag tag-accent">Animated UI</span><span class="tag">Settings Panel</span><span class="tag">Music Fade</span><span class="tag">Button Tweens</span><span class="tag">Update Logs</span><span class="tag">Credits</span>
       </div>
     </div>
 
-    <div class="project-card">
+    <div class="project-card reveal">
       <div class="project-num">06 — LiveOps</div>
       <div class="project-title">Dynamic Event Framework</div>
       <div class="project-video"><iframe src="https://www.youtube.com/embed/MFWchzSIDBg" allowfullscreen></iframe></div>
-      <p class="project-desc">
-        A scalable LiveOps-style event engine that dynamically triggers world events, modifies gameplay, announces events to players, handles rewards, and manages cooldowns. Features weighted random event selection, a priority system, conflict prevention so incompatible events never run together, an event queue, and a full lifecycle pipeline with OnStart, OnUpdate and OnEnd hooks. Includes 5 sample events — Meteor Shower, Blood Moon, Treasure Hunt, Double Coins, and Boss Invasion — each demonstrating a different framework capability.
-      </p>
+      <p class="project-desc">A scalable LiveOps-style event engine that dynamically triggers world events, modifies gameplay, announces events to players, handles rewards, and manages cooldowns. Features weighted random event selection, a priority system, conflict prevention so incompatible events never run together, an event queue, and a full lifecycle pipeline with OnStart, OnUpdate and OnEnd hooks. Includes 5 sample events demonstrating different framework capabilities.</p>
       <div class="project-tags">
-        <span class="tag tag-accent">Event Scheduler</span>
-        <span class="tag tag-accent">Weighted Random</span>
-        <span class="tag">Priority System</span>
-        <span class="tag">Cooldown Manager</span>
-        <span class="tag">Announcement UI</span>
-        <span class="tag">Reward System</span>
-        <span class="tag">LiveOps</span>
+        <span class="tag tag-accent">Event Scheduler</span><span class="tag tag-accent">Weighted Random</span><span class="tag">Priority System</span><span class="tag">Cooldown Manager</span><span class="tag">Announcement UI</span><span class="tag">Reward System</span><span class="tag">LiveOps</span>
       </div>
+    </div>
 
-    <div class="project-card">
+    <div class="project-card reveal">
       <div class="project-num">07 — Gameplay</div>
       <div class="project-title">Custom Movement System</div>
       <div class="project-video"><iframe src="https://www.youtube.com/embed/eOqSkiRHHFs" allowfullscreen></iframe></div>
-      <p class="project-desc">
-        A fully customizable R6 movement system built from a real commission spec. Supports walk, run, jump, fall, crouch and slide with smooth transitions between each state. Includes a stamina meter that depletes gradually while running and takes a significant chunk on slide. The stamina UI is fully customizable and displays on screen at all times. <span style="color:#f0f0f0; font-weight:700;">Note: the demo video shows no animations by design — this system is animation-agnostic. Your existing animations plug directly into the state hooks.</span>
-      </p>
+      <p class="project-desc">A fully customizable R6 movement system built from a real commission spec. Supports walk, run, jump, fall, crouch and slide with smooth transitions between each state. Includes a stamina meter that depletes gradually while running and takes a significant chunk on slide. The stamina UI is fully customizable and displays on screen at all times. <span style="color:#f0f0f0;font-weight:700;">Note: the demo video shows no animations by design — this system is animation-agnostic. Your existing animations plug directly into the state hooks.</span></p>
       <div class="project-tags">
-        <span class="tag tag-accent">Custom Movement</span>
-        <span class="tag tag-accent">Stamina System</span>
-        <span class="tag">Crouch + Slide</span>
-        <span class="tag">HUD UI</span>
-        <span class="tag">R6</span>
-        <span class="tag">State Management</span>
+        <span class="tag tag-accent">Custom Movement</span><span class="tag tag-accent">Stamina System</span><span class="tag">Crouch + Slide</span><span class="tag">HUD UI</span><span class="tag">R6</span><span class="tag">State Management</span>
       </div>
     </div>
 
-    <div class="project-card">
+    <div class="project-card reveal">
       <div class="project-num">08 — Commission</div>
       <div class="project-title">Multi-Floor Elevator System</div>
       <div class="project-video"><iframe src="https://www.youtube.com/embed/ZPPTHz3Mirs" allowfullscreen></iframe></div>
-      <p class="project-desc">
-        A commissioned multi-floor elevator system built and delivered to a client. Implemented directly into their game model. Each floor has a switch that calls the elevator, gates open when the elevator arrives and close when it departs, the lever switches position on activation, and the elevator moves smoothly with tweening. All state is synchronized across all players in the server.
-      </p>
+      <p class="project-desc">A commissioned multi-floor elevator system built and delivered to a client. Implemented directly into their game model. Each floor has a switch that calls the elevator, gates open when the elevator arrives and close when it departs, the lever switches position on activation, and the elevator moves smoothly with tweening. All state is synchronized across all players in the server.</p>
       <div class="project-tags">
-        <span class="tag tag-accent">Tween Animations</span>
-        <span class="tag tag-accent">State Sync</span>
-        <span class="tag">Multi-Floor</span>
-        <span class="tag">Gate System</span>
-        <span class="tag">Switch Mechanics</span>
-        <span class="tag">Multiplayer Safe</span>
+        <span class="tag tag-accent">Tween Animations</span><span class="tag tag-accent">State Sync</span><span class="tag">Multi-Floor</span><span class="tag">Gate System</span><span class="tag">Switch Mechanics</span><span class="tag">Multiplayer Safe</span>
       </div>
     </div>
 
-    <div class="project-card">
+    <div class="project-card reveal">
       <div class="project-num">09 — Systems</div>
       <div class="project-title">Inventory + Looting System — Military UI</div>
       <div class="project-video"><iframe src="https://www.youtube.com/embed/S7GJxb-6kIA" allowfullscreen></iframe></div>
-      <p class="project-desc">
-        A production-ready server-authoritative inventory and looting system inspired by Aftermath. Features a grid-based inventory with drag and drop, item tooltips, rarity system, physical item dropping, and a death loot bag that spawns at the player's death location. The dual-inventory looting interface lets multiple players access the same bag simultaneously with shift-click quick transfer. Anti-dupe protection and race condition prevention built in throughout. Military style UI.
-      </p>
+      <p class="project-desc">A production-ready server-authoritative inventory and looting system inspired by Aftermath. Features a grid-based inventory with drag and drop, item tooltips, rarity system, physical item dropping, and a death loot bag that spawns at the player's death location. The dual-inventory looting interface lets multiple players access the same bag simultaneously with shift-click quick transfer. Anti-dupe protection and race condition prevention built in throughout. Military style UI.</p>
       <div class="project-tags">
-        <span class="tag tag-accent">Server-Authoritative</span>
-        <span class="tag tag-accent">Anti-Dupe</span>
-        <span class="tag">Drag + Drop</span>
-        <span class="tag">Death Loot Bag</span>
-        <span class="tag">Dual Inventory</span>
-        <span class="tag">Race Condition Safe</span>
-        <span class="tag">Grid UI</span>
+        <span class="tag tag-accent">Server-Authoritative</span><span class="tag tag-accent">Anti-Dupe</span><span class="tag">Drag + Drop</span><span class="tag">Death Loot Bag</span><span class="tag">Dual Inventory</span><span class="tag">Race Condition Safe</span><span class="tag">Grid UI</span>
       </div>
     </div>
 
-    <div class="project-card">
+    <div class="project-card reveal">
       <div class="project-num">10 — Systems</div>
       <div class="project-title">Inventory + Looting System — Casual UI</div>
       <div class="project-video"><iframe src="https://www.youtube.com/embed/PWJdRbPs-SU" allowfullscreen></iframe></div>
-      <p class="project-desc">
-        The same production-ready looting framework as Project 09 — server-authoritative, anti-dupe, drag and drop, death loot bags, dual inventory looting and race condition protection — rebuilt with a completely different visual identity. Rounded corners, softer colors and a bubbly aesthetic designed for casual or RPG games. Demonstrates the framework's ability to support entirely different UI styles without changing any underlying logic.
-      </p>
+      <p class="project-desc">The same production-ready looting framework as Project 09 — server-authoritative, anti-dupe, drag and drop, death loot bags, dual inventory looting and race condition protection — rebuilt with a completely different visual identity. Rounded corners, softer colors and a bubbly aesthetic designed for casual or RPG games. Demonstrates the framework's ability to support entirely different UI styles without changing any underlying logic.</p>
       <div class="project-tags">
-        <span class="tag tag-accent">Server-Authoritative</span>
-        <span class="tag tag-accent">Anti-Dupe</span>
-        <span class="tag">Drag + Drop</span>
-        <span class="tag">Death Loot Bag</span>
-        <span class="tag">Dual Inventory</span>
-        <span class="tag">Casual UI</span>
-        <span class="tag">UI Reskin</span>
+        <span class="tag tag-accent">Server-Authoritative</span><span class="tag tag-accent">Anti-Dupe</span><span class="tag">Drag + Drop</span><span class="tag">Death Loot Bag</span><span class="tag">Dual Inventory</span><span class="tag">Casual UI</span><span class="tag">UI Reskin</span>
       </div>
     </div>
 
-    <div class="project-card">
+    <div class="project-card reveal">
       <div class="project-num">11 — Commission</div>
       <div class="project-title">Vehicle-Mounted Crane System</div>
       <div class="project-video"><iframe src="https://www.youtube.com/embed/6f4wawp1svI" allowfullscreen></iframe></div>
-      <p class="project-desc">
-        A commissioned fully interactive truck-mounted crane system. Features a rotating boom with adjustable elevation, telescopic extension and retraction with dynamic inner boom generation, a functional hook and cable system that updates with boom movement, collision-aware hook logic using raycasting to prevent clipping through terrain and objects, and deployable side outriggers with smooth tween animations. The crane stays fully attached to the truck chassis during vehicle movement with no physics desynchronization. Built multiplayer-safe with keybind-driven controls and persistent state between crane sessions.
-      </p>
+      <p class="project-desc">A commissioned fully interactive truck-mounted crane system. Features a rotating boom with adjustable elevation, telescopic extension and retraction with dynamic inner boom generation, a functional hook and cable system that updates with boom movement, collision-aware hook logic using raycasting to prevent clipping through terrain and objects, and deployable side outriggers with smooth tween animations. The crane stays fully attached to the truck chassis during vehicle movement with no physics desynchronization. Built multiplayer-safe with keybind-driven controls and persistent state between crane sessions.</p>
       <div class="project-tags">
-        <span class="tag tag-accent">Commission</span>
-        <span class="tag tag-accent">Physics Systems</span>
-        <span class="tag">Constraint + Weld</span>
-        <span class="tag">Raycasting</span>
-        <span class="tag">Vehicle Integration</span>
-        <span class="tag">Telescopic Boom</span>
-        <span class="tag">Multiplayer Safe</span>
-        <span class="tag">State Management</span>
+        <span class="tag tag-accent">Commission</span><span class="tag tag-accent">Physics Systems</span><span class="tag">Constraint + Weld</span><span class="tag">Raycasting</span><span class="tag">Vehicle Integration</span><span class="tag">Telescopic Boom</span><span class="tag">Multiplayer Safe</span><span class="tag">State Management</span>
       </div>
     </div>
 
@@ -863,108 +346,54 @@
 <div class="full-border"></div>
 
 <section id="skills">
-  <div class="section-label">Capabilities</div>
-  <h2 class="section-title">What I Build</h2>
-
+  <div class="section-label reveal">Capabilities</div>
+  <h2 class="section-title reveal">What I Build</h2>
   <div class="skills-grid">
-    <div class="skill-card">
-      <span class="skill-icon">[AI]</span>
-      <div class="skill-name">AI Systems</div>
-      <p class="skill-desc">Behavior trees, state machines, perception systems, pathfinding, squad coordination, and debug tooling. Not just NPC chase scripts — full reusable AI engines.</p>
-    </div>
-    <div class="skill-card">
-      <span class="skill-icon">[FW]</span>
-      <div class="skill-name">Game Frameworks</div>
-      <p class="skill-desc">Service/controller architecture, module loaders, signal systems, server-authoritative game loops. Built to scale, not to be rewritten.</p>
-    </div>
-    <div class="skill-card">
-      <span class="skill-icon">[MP]</span>
-      <div class="skill-name">Multiplayer Systems</div>
-      <p class="skill-desc">Round-based games, matchmaking, team balancing, killcam, spectator mode, and replay systems. Server-side always. No client trust.</p>
-    </div>
-    <div class="skill-card">
-      <span class="skill-icon">[DB]</span>
-      <div class="skill-name">Data + Economy</div>
-      <p class="skill-desc">DataStore systems with versioning, anti-exploit currency validation, auto-save loops, and safe merge logic for new data fields.</p>
-    </div>
-    <div class="skill-card">
-      <span class="skill-icon">[UI]</span>
-      <div class="skill-name">UI Systems</div>
-      <p class="skill-desc">Screen managers, reusable components, notification queues, tween animations, HUDs, killcam overlays, spectator bars — clean and modular.</p>
-    </div>
-    <div class="skill-card">
-      <span class="skill-icon">[CB]</span>
-      <div class="skill-name">Combat Systems</div>
-      <p class="skill-desc">Server-authoritative hit detection, M1 combo chains, cooldown systems, knockback physics, hitbox debugging. No client-side damage. Ever.</p>
-    </div>
-    <div class="skill-card">
-      <span class="skill-icon">[IN]</span>
-      <div class="skill-name">Inventory + Shop</div>
-      <p class="skill-desc">Server-validated item systems with buy, sell, equip and stack logic. Single config drives all item data. Clients request, server decides. Always.</p>
-    </div>
-    <div class="skill-card">
-      <span class="skill-icon">[MN]</span>
-      <div class="skill-name">Main Menu + Polish</div>
-      <p class="skill-desc">Cinematic camera systems, animated button tweens, settings panels with sliders and toggles, music fade systems, and smooth play transitions.</p>
-    </div>
-    <div class="skill-card">
-      <span class="skill-icon">[EV]</span>
-      <div class="skill-name">LiveOps Event Systems</div>
-      <p class="skill-desc">Dynamic event frameworks with weighted scheduling, priority queues, conflict prevention, lifecycle hooks, reward pipelines, and announcement systems.</p>
-    </div>
-    <div class="skill-card">
-      <span class="skill-icon">[PH]</span>
-      <div class="skill-name">Physics + Vehicle Systems</div>
-      <p class="skill-desc">Constraint and weld management, raycasting for collision detection, telescopic mechanics, vehicle attachment synchronization, and multiplayer-safe physics architecture.</p>
-    </div>
+    <div class="skill-card reveal"><span class="skill-icon">[AI]</span><div class="skill-name">AI Systems</div><p class="skill-desc">Behavior trees, state machines, perception systems, pathfinding, squad coordination, and debug tooling. Not just NPC chase scripts — full reusable AI engines.</p></div>
+    <div class="skill-card reveal"><span class="skill-icon">[FW]</span><div class="skill-name">Game Frameworks</div><p class="skill-desc">Service/controller architecture, module loaders, signal systems, server-authoritative game loops. Built to scale, not to be rewritten.</p></div>
+    <div class="skill-card reveal"><span class="skill-icon">[MP]</span><div class="skill-name">Multiplayer Systems</div><p class="skill-desc">Round-based games, matchmaking, team balancing, killcam, spectator mode, and replay systems. Server-side always. No client trust.</p></div>
+    <div class="skill-card reveal"><span class="skill-icon">[DB]</span><div class="skill-name">Data + Economy</div><p class="skill-desc">DataStore systems with versioning, anti-exploit currency validation, auto-save loops, and safe merge logic for new data fields.</p></div>
+    <div class="skill-card reveal"><span class="skill-icon">[UI]</span><div class="skill-name">UI Systems</div><p class="skill-desc">Screen managers, reusable components, notification queues, tween animations, HUDs, killcam overlays, spectator bars — clean and modular.</p></div>
+    <div class="skill-card reveal"><span class="skill-icon">[CB]</span><div class="skill-name">Combat Systems</div><p class="skill-desc">Server-authoritative hit detection, M1 combo chains, cooldown systems, knockback physics, hitbox debugging. No client-side damage. Ever.</p></div>
+    <div class="skill-card reveal"><span class="skill-icon">[IN]</span><div class="skill-name">Inventory + Shop</div><p class="skill-desc">Server-validated item systems with buy, sell, equip and stack logic. Single config drives all item data. Clients request, server decides. Always.</p></div>
+    <div class="skill-card reveal"><span class="skill-icon">[MN]</span><div class="skill-name">Main Menu + Polish</div><p class="skill-desc">Cinematic camera systems, animated button tweens, settings panels with sliders and toggles, music fade systems, and smooth play transitions.</p></div>
+    <div class="skill-card reveal"><span class="skill-icon">[EV]</span><div class="skill-name">LiveOps Event Systems</div><p class="skill-desc">Dynamic event frameworks with weighted scheduling, priority queues, conflict prevention, lifecycle hooks, reward pipelines, and announcement systems.</p></div>
+    <div class="skill-card reveal"><span class="skill-icon">[PH]</span><div class="skill-name">Physics + Vehicle Systems</div><p class="skill-desc">Constraint and weld management, raycasting for collision detection, telescopic mechanics, vehicle attachment synchronization, and multiplayer-safe physics architecture.</p></div>
   </div>
 </section>
 
 <div class="full-border"></div>
 
 <section id="pricing">
-  <div class="section-label">Pricing</div>
-  <h2 class="section-title">Commission Rates</h2>
-
+  <div class="section-label reveal">Pricing</div>
+  <h2 class="section-title reveal">Commission Rates</h2>
   <div class="pricing-grid">
-    <div class="price-card">
+    <div class="price-card reveal">
       <div class="price-label">Small System</div>
       <div class="price-amount">R$500+</div>
       <div class="price-unit">/ single system</div>
       <ul class="price-features">
-        <li>One focused system</li>
-        <li>Clean modular code</li>
-        <li>1–2 day delivery</li>
-        <li>7 day bug warranty</li>
+        <li>One focused system</li><li>Clean modular code</li><li>1–2 day delivery</li><li>7 day bug warranty</li>
       </ul>
-      <a href="#contact" class="btn btn-secondary" style="width:100%; text-align:center;">Get a Quote</a>
+      <a href="#contact" class="btn btn-secondary" style="width:100%;text-align:center;">Get a Quote</a>
     </div>
-
-    <div class="price-card featured">
+    <div class="price-card featured reveal">
       <div class="price-label accent">Full Framework</div>
       <div class="price-amount">R$2000+</div>
       <div class="price-unit">/ complete project</div>
       <ul class="price-features">
-        <li>Multiple connected systems</li>
-        <li>Full architecture design</li>
-        <li>3–7 day delivery</li>
-        <li>7 day bug warranty</li>
-        <li>Progress updates every few hours</li>
+        <li>Multiple connected systems</li><li>Full architecture design</li><li>3–7 day delivery</li><li>7 day bug warranty</li><li>Progress updates every few hours</li>
       </ul>
-      <a href="#contact" class="btn btn-primary" style="width:100%; text-align:center;">Get a Quote</a>
+      <a href="#contact" class="btn btn-primary" style="width:100%;text-align:center;">Get a Quote</a>
     </div>
-
-    <div class="price-card">
+    <div class="price-card reveal">
       <div class="price-label">PayPal</div>
       <div class="price-amount">$5+</div>
       <div class="price-unit">/ USD equivalent</div>
       <ul class="price-features">
-        <li>Same scope as Robux tiers</li>
-        <li>50% upfront, 50% after</li>
-        <li>No percentage deals</li>
-        <li>Invoice on request</li>
+        <li>Same scope as Robux tiers</li><li>50% upfront, 50% after</li><li>No percentage deals</li><li>Invoice on request</li>
       </ul>
-      <a href="#contact" class="btn btn-secondary" style="width:100%; text-align:center;">Get a Quote</a>
+      <a href="#contact" class="btn btn-secondary" style="width:100%;text-align:center;">Get a Quote</a>
     </div>
   </div>
 </section>
@@ -972,50 +401,26 @@
 <div class="full-border"></div>
 
 <section id="contact">
-  <div class="section-label">Contact</div>
-  <h2 class="section-title">Work Together</h2>
-
-  <div class="contact-grid">
+  <div class="section-label reveal">Contact</div>
+  <h2 class="section-title reveal">Work Together</h2>
+  <div class="contact-grid reveal">
     <div class="contact-info">
       <h3>Get in touch</h3>
-      <p>Available for commissions and studio contracts. DM me on Discord or find me on RoDevs. I respond fast.</p>
-
-      <a href="#" class="contact-link">
-        <span class="contact-link-icon">Discord</span>
-        sinadev
-      </a>
-      <a href="#" class="contact-link">
-        <span class="contact-link-icon">Roblox</span>
-        zeskhh
-      </a>
+      <p>Available for commissions and studio contracts. DM me on Discord or find me on Roblox. I respond fast.</p>
+      <a href="#" class="contact-link"><span class="contact-link-icon">Discord</span>sinadev</a>
+      <a href="#" class="contact-link"><span class="contact-link-icon">Roblox</span>zeskhh</a>
     </div>
-
     <div class="contact-notice">
       <div>
         <div class="notice-title">Before you reach out</div>
         <p class="notice-text">A few things to know so we can work together smoothly.</p>
       </div>
       <div>
-        <div class="notice-item">
-          <span class="notice-item-icon">01</span>
-          <span class="notice-item-text">I do not accept percentage-based payment without a guaranteed upfront minimum.</span>
-        </div>
-        <div class="notice-item">
-          <span class="notice-item-icon">02</span>
-          <span class="notice-item-text">Payment is 50% upfront, 50% on delivery. No exceptions.</span>
-        </div>
-        <div class="notice-item">
-          <span class="notice-item-icon">03</span>
-          <span class="notice-item-text">Bug fixes are free within 7 days of delivery for issues I caused.</span>
-        </div>
-        <div class="notice-item">
-          <span class="notice-item-icon">04</span>
-          <span class="notice-item-text">I provide progress updates throughout. You are never left waiting blindly.</span>
-        </div>
-        <div class="notice-item">
-          <span class="notice-item-icon">05</span>
-          <span class="notice-item-text">No refunds after delivery. If there is a bug I caused, I will fix it free within 7 days.</span>
-        </div>
+        <div class="notice-item"><span class="notice-item-icon">01</span><span class="notice-item-text">I do not accept percentage-based payment without a guaranteed upfront minimum.</span></div>
+        <div class="notice-item"><span class="notice-item-icon">02</span><span class="notice-item-text">Payment is 50% upfront, 50% on delivery. No exceptions.</span></div>
+        <div class="notice-item"><span class="notice-item-icon">03</span><span class="notice-item-text">Bug fixes are free within 7 days of delivery for issues I caused.</span></div>
+        <div class="notice-item"><span class="notice-item-icon">04</span><span class="notice-item-text">I provide progress updates throughout. You are never left waiting blindly.</span></div>
+        <div class="notice-item"><span class="notice-item-icon">05</span><span class="notice-item-text">No refunds after delivery. If there is a bug I caused, I will fix it free within 7 days.</span></div>
       </div>
     </div>
   </div>
@@ -1026,5 +431,99 @@
   <p>Built for <span>studios</span> that care about quality.</p>
 </footer>
 
+<script>
+// LOADER
+const lbar = document.getElementById('lbar');
+const lpct = document.getElementById('lpct');
+const loader = document.getElementById('loader');
+let pct = 0;
+const loadInterval = setInterval(() => {
+  pct += Math.random() * 15;
+  if (pct >= 100) { pct = 100; clearInterval(loadInterval); setTimeout(() => loader.classList.add('hidden'), 300); }
+  lbar.style.width = pct + '%';
+  lpct.textContent = Math.floor(pct) + '%';
+}, 80);
+
+
+
+// PARTICLES
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
+let W, H, pts = [];
+const resize = () => { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; };
+resize();
+window.addEventListener('resize', resize);
+for (let i = 0; i < 60; i++) pts.push({ x: Math.random()*W, y: Math.random()*H, vx: (Math.random()-0.5)*0.3, vy: (Math.random()-0.5)*0.3, r: Math.random()*1.5+0.5 });
+const drawParticles = () => {
+  ctx.clearRect(0,0,W,H);
+  pts.forEach(p => {
+    p.x += p.vx; p.y += p.vy;
+    if (p.x<0||p.x>W) p.vx*=-1;
+    if (p.y<0||p.y>H) p.vy*=-1;
+    ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle = 'rgba(0,255,136,0.4)'; ctx.fill();
+  });
+  pts.forEach((a,i) => pts.slice(i+1).forEach(b => {
+    const d = Math.hypot(a.x-b.x, a.y-b.y);
+    if (d < 120) { ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.strokeStyle = `rgba(0,255,136,${0.15*(1-d/120)})`; ctx.lineWidth=0.5; ctx.stroke(); }
+  }));
+  requestAnimationFrame(drawParticles);
+};
+drawParticles();
+
+// SEGMENTED PROGRESS BAR
+const progWrap = document.getElementById('progress-wrap');
+const SEGS = 20;
+for(let i=0;i<SEGS;i++){
+  const seg = document.createElement('div');
+  seg.className = 'prog-seg';
+  const fill = document.createElement('div');
+  fill.className = 'prog-seg-fill';
+  seg.appendChild(fill);
+  progWrap.appendChild(seg);
+}
+const fills = document.querySelectorAll('.prog-seg-fill');
+window.addEventListener('scroll', () => {
+  const s = document.documentElement.scrollTop;
+  const h = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = s/h;
+  fills.forEach((f,i) => {
+    const segPct = Math.min(1, Math.max(0, pct*SEGS - i));
+    f.style.transform = 'scaleX('+segPct+')';
+    f.style.opacity = segPct > 0 ? '1' : '0.3';
+  });
+});
+
+// BACK TO TOP
+const btt = document.getElementById('btt');
+window.addEventListener('scroll', () => { btt.classList.toggle('visible', window.scrollY > 400); });
+btt.addEventListener('click', e => { e.preventDefault(); window.scrollTo({top:0,behavior:'smooth'}); });
+
+// NAV ACTIVE + SCROLLED
+const nav = document.getElementById('nav');
+const navLinks = document.querySelectorAll('.nav-links a');
+const sections = document.querySelectorAll('section[id]');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 50);
+  let current = '';
+  sections.forEach(s => { if (window.scrollY >= s.offsetTop - 200) current = s.id; });
+  navLinks.forEach(a => { a.classList.toggle('active', a.getAttribute('href') === '#' + current); });
+});
+
+// SCROLL REVEAL
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// MOUSE GLOW ON PROJECT CARDS
+document.querySelectorAll('.project-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const r = card.getBoundingClientRect();
+    card.style.setProperty('--mx', ((e.clientX-r.left)/r.width*100)+'%');
+    card.style.setProperty('--my', ((e.clientY-r.top)/r.height*100)+'%');
+  });
+});
+</script>
 </body>
 </html>
